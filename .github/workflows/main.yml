@@ -5,63 +5,8 @@ on:
   - workflow_dispatch
 
 jobs:
-  install:
-    runs-on: ubuntu-20.04
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3
-
-      - name: Install pnpm
-        run: corepack enable
-
-      - name: Cache pnpm and node-modules
-        uses: Icalinguaplusplus/node-pm-action@master
-        with:
-          node-modules: ./node_modules
-          package-manager: pnpm
-
-      - name: pnpm install
-        run: pnpm install
-
-  pack-bridge-js:
-    runs-on: ubuntu-20.04
-    defaults:
-      run:
-        working-directory: icalingua-bridge-oicq
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3
-
-      - name: Install pnpm
-        run: corepack enable
-
-      - name: Cache pnpm and node-modules
-        uses: Icalinguaplusplus/node-pm-action@master
-        with:
-          node-modules: ./node_modules
-          package-manager: pnpm
-
-      - name: pnpm install
-        run: pnpm install
-
-      - name: Compile
-        run: pnpm compile
-
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: bridge-oicq
-          path: icalingua-bridge-oicq/build/
-          if-no-files-found: error
-
   build-windows-x64:
-    runs-on: windows-2019
+    runs-on: windows-latest
     outputs:
       version: ${{ steps.git-ver.outputs.version }}
       arch-version: ${{ steps.version.outputs.arch-version }}
@@ -79,7 +24,13 @@ jobs:
       - name: Install pnpm
         run: corepack enable
 
-      - name: pnpm install
+      - name: Cache pnpm and node-modules
+        uses: Icalinguaplusplus/node-pm-action@master
+        with:
+          node-modules: ./node_modules
+          package-manager: pnpm
+
+      - name: Install deps
         run: pnpm install
 
       - name: Get version tag
@@ -91,7 +42,7 @@ jobs:
         id: version
         env:
           SHA: ${{ github.sha }}
-          REF: ${{ github.REF }}
+          REF: ${{ github.ref }}
           GIT_VER: ${{ steps.git-ver.outputs.version }}
 
       - name: Build
@@ -105,39 +56,20 @@ jobs:
       - uses: actions/upload-artifact@v3
         name: Upload artifact
         with:
-          name: Icalingua_Windows64.exe
-          path: icalingua/build/Icalingua++*.exe
+          name: exe-x64
+          path: icalingua/build/*.exe
           if-no-files-found: error
 
-  install-macos-x64:
-    runs-on: macos-11
-    defaults:
-      run:
-        working-directory: icalingua
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3
+      - name: Create release
+        if: startsWith(github.ref, 'refs/tags/v.fs.')
+        uses: softprops/action-gh-release@v1
         with:
-          node-version: "16"
-
-      - name: Install pnpm
-        run: corepack enable
-
-      - name: Cache pnpm and node-modules
-        uses: Icalinguaplusplus/node-pm-action@master
-        with:
-          node-modules: ./node_modules
-          package-manager: pnpm
-
-      - name: pnpm install
-        run: pnpm install
+          files: "icalingua/build/*.exe"
+          generate_release_notes: true
+          append_body: false
 
   build-macos-x64:
-    runs-on: macos-11
-    needs: install-macos-x64
+    runs-on: macos-latest
     outputs:
       version: ${{ steps.git-ver.outputs.version }}
       arch-version: ${{ steps.version.outputs.arch-version }}
@@ -161,7 +93,7 @@ jobs:
           node-modules: ./node_modules
           package-manager: pnpm
 
-      - name: pnpm install
+      - name: Install deps
         run: pnpm install
 
       - name: Get version tag
@@ -173,51 +105,24 @@ jobs:
         id: version
         env:
           SHA: ${{ github.sha }}
-          REF: ${{ github.REF }}
+          REF: ${{ github.ref }}
           GIT_VER: ${{ steps.git-ver.outputs.version }}
 
       - name: Build
         run: pnpm build
         working-directory: icalingua
 
-      - name: Rename
-        run: for i in *.dmg;do mv "$i" "${i%.dmg}_x64.dmg" ;done
-        working-directory: icalingua/build
-
       - uses: actions/upload-artifact@v3
         name: Upload artifact
         with:
-          name: Icalingua++_x64.dmg
-          path: icalingua/build/Icalingua++*.dmg
+          name: dmg-x64
+          path: icalingua/build/*.dmg
           if-no-files-found: error
 
-  release:
-    runs-on: ubuntu-20.04
-    if: ${{ startsWith(github.ref, 'refs/tags/v') }}
-    needs:
-      - build-windows-x64
-      - build-macos-x64
-    steps:
-      - name: Make dir
-        run: mkdir release
-
-      - name: Get Icalingua_Windows64.exe
-        uses: actions/download-artifact@v3
+      - name: Create release
+        if: startsWith(github.ref, 'refs/tags/v.fs.')
+        uses: softprops/action-gh-release@v1
         with:
-          name: Icalingua_Windows64.exe
-          path: release
-
-      - name: Get Icalingua++_x64.dmg
-        uses: actions/download-artifact@v3
-        with:
-          name: Icalingua++_x64.dmg
-          path: release
-
-      - name: Release
-        uses: fnkr/github-action-ghr@ghr-options
-        env:
-          GHR_PATH: release/
-          GITHUB_TOKEN: ${{ github.token }}
-          GHR_REPLACE: true
-          GHR_TITLE: ${{ needs.build-dist-bundle.outputs.version }}
-          GHR_DRAFT: true
+          files: "icalingua/build/*.dmg"
+          generate_release_notes: true
+          append_body: false

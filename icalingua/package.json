@@ -25,8 +25,8 @@
         "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.ts"
     },
     "build": {
-        "productName": "Icalingua++",
-        "appId": "Icalingua++",
+        "productName": "Icalinguim",
+        "appId": "Icalinguim",
         "directories": {
             "output": "build",
             "buildResources": "static"
@@ -56,10 +56,10 @@
                     "target": "snap"
                 }
             ],
-            "executableName": "icalingua",
+            "executableName": "icalinguim",
             "category": "Network",
             "desktop": {
-                "StartupWMClass": "icalingua"
+                "StartupWMClass": "icalinguim"
             }
         },
         "snap": {
