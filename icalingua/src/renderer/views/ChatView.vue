@@ -393,13 +393,13 @@ export default {
             })
         })
         ipcRenderer.on('setCryptSecret', (_, roomId) => {
-            this.$prompt('请设置一个16位的密码，用于加密和解密消息，可留空（仅对聊天有效）', '提示', {
+            this.$prompt('请设置一个数据长度为16的密码，用于加密和解密消息，可留空（仅对聊天有效）', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
             }).then(({ value }) => {
                 if (!value) {
                     this.selectedRoom.cryptSecret = null
-                } else if (value.length != 16){
+                } else if (Buffer.from(value).length != 16){
                     this.$message.error('无效的密码')
                     return
                 }
