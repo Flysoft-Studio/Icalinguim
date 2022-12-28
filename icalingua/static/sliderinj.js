@@ -5,59 +5,57 @@
      * @return {boolean}
      */
     function processUrl(url) {
-        let prefix = "jsbridge://CAPTCHA/onVerifyCAPTCHA?p="
+        let prefix = 'jsbridge://CAPTCHA/onVerifyCAPTCHA?p='
         if (url.startsWith(prefix)) {
-            let json = url.substring(prefix.length);
+            let json = url.substring(prefix.length)
             for (let i = json.length; i--; i > 0) {
                 let j = json.substr(0, i)
-                console.log(j);
+                // console.log(j);
                 try {
-                    let content = decodeURIComponent(j);
-                    let obj = JSON.parse(content);
-                    console.log(obj);
+                    let content = decodeURIComponent(j)
+                    let obj = JSON.parse(content)
+                    // console.log(obj);
                     require('electron').ipcRenderer.send('sliderLogin', obj.ticket)
                     window.close()
-                    break;
-                } catch (ignore) {
-                }
+                    break
+                } catch (ignore) {}
             }
-            return true;
+            return true
         }
-        return false;
+        return false
     }
 
-    (() => {
-        let desc = Object.getOwnPropertyDescriptor(Image.prototype, "src");
-        Object.defineProperty(Image.prototype, "src", {
+    ;(() => {
+        let desc = Object.getOwnPropertyDescriptor(Image.prototype, 'src')
+        Object.defineProperty(Image.prototype, 'src', {
             get: desc.get,
             set(v) {
-                if (processUrl(v)) return;
+                if (processUrl(v)) return
                 desc.set.call(this, v)
-            }
+            },
         })
-    })();
+    })()
 
-
-    (() => {
-        let desc = Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, "src");
-        Object.defineProperty(HTMLIFrameElement.prototype, "src", {
+    ;(() => {
+        let desc = Object.getOwnPropertyDescriptor(HTMLIFrameElement.prototype, 'src')
+        Object.defineProperty(HTMLIFrameElement.prototype, 'src', {
             get: desc.get,
             set(v) {
-                if (processUrl(v)) return;
+                if (processUrl(v)) return
                 desc.set.call(this, v)
-            }
+            },
         })
-    })();
+    })()
 
-    (() => {
-        let UserAgent = "${MIRAI_SELENIUM-USERAGENT}";
-        if (UserAgent !== "${MIRAI_SELENIUM-USERAGENT}") {
-            Object.defineProperty(Navigator.prototype, "userAgent", {
+    ;(() => {
+        let UserAgent = '${MIRAI_SELENIUM-USERAGENT}'
+        if (UserAgent !== '${MIRAI_SELENIUM-USERAGENT}') {
+            Object.defineProperty(Navigator.prototype, 'userAgent', {
                 get() {
                     return UserAgent
-                }
-            });
-            document.querySelectorAll("script").forEach(it => it.remove());
+                },
+            })
+            document.querySelectorAll('script').forEach((it) => it.remove())
         }
-    })();
+    })()
 })()

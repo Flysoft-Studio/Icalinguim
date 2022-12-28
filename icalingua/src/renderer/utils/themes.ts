@@ -80,7 +80,7 @@ export function $$DON_CALL$$fetchThemes(STORE_PATH: string) {
             }
             registerTheme(themeName, content)
         } catch (e) {
-            console.log(e)
+            console.error(e)
         }
     }
     ipcRenderer.send('theme:list-complete', Object.keys(availableThemes))

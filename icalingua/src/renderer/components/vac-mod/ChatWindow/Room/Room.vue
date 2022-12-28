@@ -28,7 +28,7 @@
             </template>
         </room-header>
 
-        <div ref="scrollContainer" class="vac-container-scroll" @scroll="containerScroll">
+        <el-scrollbar ref="scrollContainer" class="vac-container-scroll">
             <loader :show="loadingMessages" />
             <div class="vac-messages-container">
                 <div :class="{ 'vac-messages-hidden': loadingMessages }">
@@ -142,7 +142,7 @@
                     </transition>
                 </div>
             </div>
-        </div>
+        </el-scrollbar>
         <div v-if="!loadingMessages">
             <transition name="vac-bounce">
                 <div v-if="lastUnreadCount >= 10" class="vac-icon-last-message" @click="scrollToLastMessage">
@@ -290,7 +290,7 @@
                     >
                         <el-avatar size="small" v-if="id !== 0" :src="`https://q1.qlogo.cn/g?b=qq&nk=${id}&s=40`" />
                         <p style="wordwrap: 'break-word'; margin-right: auto; margin-left: 5px">{{ name }}</p>
-                        <p v-if="id !== 0" style="fontfamily: 'monospace'">{{ id }}</p>
+                        <p v-if="id !== 0" style="fontfamily: 'Consolas', 'monospace'">{{ id }}</p>
                     </SearchInput>
                 </transition>
 
@@ -548,7 +548,7 @@ export default {
             }
         },
         messages(newVal, oldVal) {
-            const element = this.$refs.scrollContainer
+            const element = this.$refs.scrollContainer.wrap
             if (!element) return
 
             const offset = (newVal ? newVal.length : 0) - (oldVal ? oldVal.length : 0)
@@ -617,7 +617,7 @@ export default {
                         this.$message.error('Message not found')
                         return
                     }
-                    console.log('last unread message ID', _id)
+                    // console.log('last unread message ID', _id)
                     this.scrollToMessage(_id)
                 }, 0)
             }
@@ -673,8 +673,8 @@ export default {
                             e.preventDefault()
                         }
                         break
-                    default:
-                        console.log('qwq')
+                    // default:
+                    //     console.log('qwq')
                 }
             } else if (e.key === 'ArrowUp') {
                 if (this.message) return
@@ -708,15 +708,12 @@ export default {
         })
 
         window.addEventListener('paste', (event) => {
-            console.log(event.clipboardData.files)
             const imageHTML = event.clipboardData.getData('text/html') || '.'
-            console.log(imageHTML)
             if (event.clipboardData.files && event.clipboardData.files.length) {
                 // Using the path attribute to get absolute file path
                 this.onFileChange(event.clipboardData.files)
             } else if (imageHTML.indexOf('<img src="') !== -1) {
                 const imageURL = imageHTML.match(/img src="(.*?)"/)
-                console.log(imageURL)
                 if (imageURL) {
                     this.onPasteGif(imageURL[1])
                 }
@@ -727,12 +724,13 @@ export default {
         document.addEventListener('drop', (event) => {
             event.preventDefault()
             event.stopPropagation()
-            console.log(event)
             if (event.dataTransfer.files.length) {
                 // Using the path attribute to get absolute file path
                 this.onFileChange(event.dataTransfer.files)
             }
         })
+
+        this.$refs.scrollContainer.addEventListener('scroll', this.containerScroll)
     },
     async created() {
         this.optimizeMethod = await ipc.getOptimizeMethodSetting()
@@ -777,7 +775,6 @@ export default {
         },
         sendForward(target, name) {
             if (this.msgstoForward.length <= 0) {
-                console.log('No Message Selected.')
                 return
             }
             const ForwardMessages = []
@@ -839,18 +836,15 @@ export default {
             this.showForwardPanel = false
             this.msgstoForward = []
             this.selectedMessage = ''
-            console.log('closeForwardPanel')
         },
         addMsgtoForward(messageId) {
             this.msgstoForward.push(messageId)
-            console.log('addMsgtoForward')
         },
         delMsgtoForward(messageId) {
             this.msgstoForward = this.msgstoForward.filter((e) => e !== messageId)
             if (this.msgstoForward.length === 0) {
                 this.closeForwardPanel()
             }
-            console.log('delMsgtoForward')
         },
         scrollToMessage(messageId) {
             const judgeSameMessage = (a, b) => {
@@ -1104,7 +1098,7 @@ export default {
             return scrollHeight - clientHeight - scrollTop
         },
         scrollToBottom() {
-            const element = this.$refs.scrollContainer
+            const element = this.$refs.scrollContainer.wrap
             if (this.optimizeMethod !== 'none') {
                 this.visibleViewport.tail = this.messages.length
                 this.visibleViewport.head = Math.max(this.messages.length - this.maxViewportLength, 0)
@@ -1117,7 +1111,6 @@ export default {
             const lastUnreadCount = this.lastUnreadCount
             if (lastUnreadCount === 0) return
             const fetchNumber = Math.max(lastUnreadCount - this.messages.length, 0)
-            console.log('Need fetch messages: ', fetchNumber)
             this.$emit('fetch-messages', false, fetchNumber)
             this.$emit('clear-last-unread-count')
             this.scrollingTolastMessage = lastUnreadCount

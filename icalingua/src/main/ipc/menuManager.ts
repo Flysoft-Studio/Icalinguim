@@ -81,8 +81,17 @@ const setClearRoomsBehavior = (behavior: 'AllUnpined' | '1WeekAgo' | '1DayAgo' |
 {
     const initMenu = Menu.buildFromTemplate([
         {
-            label: 'Icalingua++',
-            submenu: [{ role: 'toggleDevTools' }],
+            label: 'Icalinguim',
+            submenu: [
+                {
+                    label: '开发者工具',
+                    role: 'toggleDevTools',
+                },
+                {
+                    label: '关闭窗口',
+                    role: 'close',
+                },
+            ],
         },
     ])
     process.platform === 'darwin' &&
@@ -622,11 +631,7 @@ export const updateAppMenu = async () => {
             }),
             new MenuItem({
                 label: 'GitHub',
-                click: () => shell.openExternal('https://github.com/Icalingua-plus-plus/Icalingua-plus-plus'),
-            }),
-            new MenuItem({
-                label: '验证消息',
-                click: () => showRequestWindow(),
+                click: () => shell.openExternal('https://github.com/Flysoft-Studio/Icalinguim'),
             }),
             new MenuItem({
                 label: '数据导出',
@@ -641,37 +646,37 @@ export const updateAppMenu = async () => {
                     },
                 ],
             }),
-            new MenuItem({
-                label: '查看合并转发消息',
-                async click() {
-                    const win = newIcalinguaWindow({
-                        height: 230,
-                        width: 600,
-                        autoHideMenuBar: true,
-                        webPreferences: {
-                            contextIsolation: false,
-                            nodeIntegration: true,
-                        },
-                    })
-                    await win.loadURL(getWinUrl() + '#/openForward')
-                },
-            }),
-            new MenuItem({
-                label: '合并转发 DEBUG',
-                visible: getConfig().debugmode === true,
-                async click() {
-                    const win = newIcalinguaWindow({
-                        height: 520,
-                        width: 600,
-                        autoHideMenuBar: true,
-                        webPreferences: {
-                            contextIsolation: false,
-                            nodeIntegration: true,
-                        },
-                    })
-                    await win.loadURL(getWinUrl() + '#/makeForward')
-                },
-            }),
+            // new MenuItem({
+            //     label: '查看合并转发消息',
+            //     async click() {
+            //         const win = newIcalinguaWindow({
+            //             height: 230,
+            //             width: 600,
+            //             autoHideMenuBar: true,
+            //             webPreferences: {
+            //                 contextIsolation: false,
+            //                 nodeIntegration: true,
+            //             },
+            //         })
+            //         await win.loadURL(getWinUrl() + '#/openForward')
+            //     },
+            // }),
+            // new MenuItem({
+            //     label: '合并转发 DEBUG',
+            //     visible: getConfig().debugmode === true,
+            //     async click() {
+            //         const win = newIcalinguaWindow({
+            //             height: 520,
+            //             width: 600,
+            //             autoHideMenuBar: true,
+            //             webPreferences: {
+            //                 contextIsolation: false,
+            //                 nodeIntegration: true,
+            //             },
+            //         })
+            //         await win.loadURL(getWinUrl() + '#/makeForward')
+            //     },
+            // }),
             new MenuItem({
                 label: '重新加载',
                 click: () => {
@@ -725,63 +730,6 @@ export const updateAppMenu = async () => {
         //设置
         options: [
             new MenuItem({
-                label: '在线状态',
-                submenu: [
-                    {
-                        type: 'radio',
-                        label: '在线',
-                        checked: getConfig().account.onlineStatus === OnlineStatusType.Online,
-                        click: () => setOnlineStatus(OnlineStatusType.Online),
-                    },
-                    {
-                        type: 'radio',
-                        label: '离开',
-                        checked: getConfig().account.onlineStatus === OnlineStatusType.Afk,
-                        click: () => setOnlineStatus(OnlineStatusType.Afk),
-                    },
-                    {
-                        type: 'radio',
-                        label: '隐身',
-                        checked: getConfig().account.onlineStatus === OnlineStatusType.Hide,
-                        click: () => setOnlineStatus(OnlineStatusType.Hide),
-                    },
-                    {
-                        type: 'radio',
-                        label: '忙碌',
-                        checked: getConfig().account.onlineStatus === OnlineStatusType.Busy,
-                        click: () => setOnlineStatus(OnlineStatusType.Busy),
-                    },
-                    {
-                        type: 'radio',
-                        label: 'Q我吧',
-                        checked: getConfig().account.onlineStatus === OnlineStatusType.Qme,
-                        click: () => setOnlineStatus(OnlineStatusType.Qme),
-                    },
-                    {
-                        type: 'radio',
-                        label: '请勿打扰',
-                        checked: getConfig().account.onlineStatus === OnlineStatusType.DontDisturb,
-                        click: () => setOnlineStatus(OnlineStatusType.DontDisturb),
-                    },
-                ],
-            }),
-            new MenuItem({
-                label: '管理屏蔽的会话',
-                click: () => {
-                    const size = screen.getPrimaryDisplay().size
-                    const win = newIcalinguaWindow({
-                        height: size.height - 200,
-                        width: 500,
-                        autoHideMenuBar: true,
-                        webPreferences: {
-                            nodeIntegration: true,
-                            contextIsolation: false,
-                        },
-                    })
-                    win.loadURL(getWinUrl() + '#/ignoreManage')
-                },
-            }),
-            new MenuItem({
                 label: 'Aria2 下载管理器设置',
                 click: () => {
                     const win = newIcalinguaWindow({
@@ -798,147 +746,149 @@ export const updateAppMenu = async () => {
                 },
             }),
             new MenuItem({
-                label: '发送消息快捷键',
+                label: '账号',
                 submenu: [
                     {
-                        type: 'radio',
-                        label: 'Enter',
-                        checked: getConfig().keyToSendMessage === 'Enter',
-                        click: () => setKeyToSendMessage('Enter'),
-                    },
-                    {
-                        type: 'radio',
-                        label: 'Ctrl + Enter',
-                        checked: getConfig().keyToSendMessage === 'CtrlEnter',
-                        click: () => setKeyToSendMessage('CtrlEnter'),
-                    },
-                    {
-                        type: 'radio',
-                        label: 'Shift + Enter',
-                        checked: getConfig().keyToSendMessage === 'ShiftEnter',
-                        click: () => setKeyToSendMessage('ShiftEnter'),
-                    },
-                ],
-            }),
-            new MenuItem({
-                label: '清理会话按钮',
-                submenu: (
-                    [
-                        ['disabled', '禁用'],
-                        ['1WeekAgo', '一周前'],
-                        ['1DayAgo', '一天前'],
-                        ['1HourAgo', '一小时前'],
-                        ['AllUnpined', '所有未置顶'],
-                    ] as const
-                ).map(([name, label]) => ({
-                    type: 'radio',
-                    label,
-                    checked: getConfig().clearRoomsBehavior === name,
-                    click: () => setClearRoomsBehavior(name),
-                })),
-            }),
-            new MenuItem({
-                label: '自动登录',
-                type: 'checkbox',
-                checked: getConfig().account.autologin,
-                click: (menuItem) => {
-                    getConfig().account.autologin = menuItem.checked
-                    saveConfigFile()
-                },
-            }),
-            new MenuItem({
-                label: '启用高亮 URL 功能',
-                type: 'checkbox',
-                checked: getConfig().linkify,
-                click: (menuItem) => {
-                    getConfig().linkify = menuItem.checked
-                    saveConfigFile()
-                    ui.message('高亮 URL 功能已' + (menuItem.checked ? '开启' : '关闭') + '，重新加载后生效')
-                },
-            }),
-            new MenuItem({
-                label: '禁用聊天分组',
-                type: 'checkbox',
-                checked: getConfig().disableChatGroups,
-                click: (menuItem) => {
-                    getConfig().disableChatGroups = menuItem.checked
-                    saveConfigFile()
-                    ui.setDisableChatGroupsSeeting(menuItem.checked)
-                },
-            }),
-            new MenuItem({
-                label: '启动时检查更新',
-                type: 'checkbox',
-                checked: getConfig().updateCheck === true,
-                click: (menuItem) => {
-                    getConfig().updateCheck = menuItem.checked
-                    saveConfigFile()
-                },
-            }),
-            new MenuItem({
-                label: '启用插件',
-                type: 'checkbox',
-                checked: getConfig().custom === true,
-                visible: getConfig().adapter === 'oicq', // TODO: 修改 Bridge 的配置
-                click: (menuItem) => {
-                    getConfig().custom = menuItem.checked
-                    saveConfigFile()
-                },
-            }),
-            new MenuItem({
-                label: '隐藏聊天图片',
-                type: 'checkbox',
-                checked: getConfig().hideChatImageByDefault,
-                click: (menuItem) => {
-                    getConfig().hideChatImageByDefault = menuItem.checked
-                    saveConfigFile()
-                    ui.message('隐藏聊天图片已' + (menuItem.checked ? '开启' : '关闭'))
-                    ui.setHideChatImageByDefault(menuItem.checked)
-                },
-            }),
-            new MenuItem({
-                label: 'DEBUG MODE',
-                visible: !version.isProduction && (versionClickTimes >= 3 || getConfig().debugmode === true),
-                submenu: [
-                    {
-                        label: 'ENABLED',
-                        type: 'checkbox',
-                        checked: getConfig().debugmode === true,
-                        visible: !version.isProduction && (versionClickTimes >= 3 || getConfig().debugmode === true),
-                        click: (menuItem) => {
-                            getConfig().debugmode = menuItem.checked
-                            if (!menuItem.checked) {
-                                getConfig().anonymous = false
+                        label: '在线状态',
+                        submenu: (
+                            [
+                                ['在线', OnlineStatusType.Online],
+                                ['离开', OnlineStatusType.Afk],
+                                ['隐身', OnlineStatusType.Hide],
+                                ['忙碌', OnlineStatusType.Busy],
+                                ['Q我吧', OnlineStatusType.Qme],
+                                ['请勿打扰', OnlineStatusType.DontDisturb],
+                            ] as const
+                        ).map((status) => {
+                            return {
+                                type: 'radio',
+                                label: status[0],
+                                checked: getConfig().account.onlineStatus === status[1],
+                                click: () => setOnlineStatus(status[1]),
                             }
-                            saveConfigFile()
-                            updateAppMenu()
-                        },
+                        }),
                     },
                     {
-                        label: '以匿名方式发送群消息',
+                        label: '自动登录',
                         type: 'checkbox',
-                        checked: getConfig().anonymous === true,
-                        visible: getConfig().debugmode === true && getConfig().sendRawMessage === false,
+                        checked: getConfig().account.autologin,
                         click: (menuItem) => {
-                            getConfig().anonymous = menuItem.checked
+                            getConfig().account.autologin = menuItem.checked
                             saveConfigFile()
-                        },
-                    },
-                    {
-                        label: 'Send raw message',
-                        type: 'checkbox',
-                        checked: getConfig().sendRawMessage === true,
-                        visible: getConfig().debugmode === true,
-                        click: (menuItem) => {
-                            getConfig().sendRawMessage = menuItem.checked
-                            saveConfigFile()
-                            updateAppMenu()
                         },
                     },
                 ],
             }),
             new MenuItem({
-                label: '历史消息相关',
+                label: '会话',
+                submenu: [
+                    {
+                        label: '管理屏蔽的会话',
+                        click: () => {
+                            const size = screen.getPrimaryDisplay().size
+                            const win = newIcalinguaWindow({
+                                height: size.height - 200,
+                                width: 500,
+                                autoHideMenuBar: true,
+                                webPreferences: {
+                                    nodeIntegration: true,
+                                    contextIsolation: false,
+                                },
+                            })
+                            win.loadURL(getWinUrl() + '#/ignoreManage')
+                        },
+                    },
+                    {
+                        label: '在会话面板上显示清理会话按钮',
+                        submenu: (
+                            [
+                                ['disabled', '禁用'],
+                                ['1WeekAgo', '一周前'],
+                                ['1DayAgo', '一天前'],
+                                ['1HourAgo', '一小时前'],
+                                ['AllUnpined', '所有未置顶'],
+                            ] as const
+                        ).map(([name, label]) => ({
+                            type: 'radio',
+                            label,
+                            checked: getConfig().clearRoomsBehavior === name,
+                            click: () => setClearRoomsBehavior(name),
+                        })),
+                    },
+                    {
+                        label: '隐藏聊天图片',
+                        type: 'checkbox',
+                        checked: getConfig().hideChatImageByDefault,
+                        click: (menuItem) => {
+                            getConfig().hideChatImageByDefault = menuItem.checked
+                            saveConfigFile()
+                            ui.message('隐藏聊天图片已' + (menuItem.checked ? '开启' : '关闭'))
+                            ui.setHideChatImageByDefault(menuItem.checked)
+                        },
+                    },
+                    {
+                        label: '禁用会话分组',
+                        type: 'checkbox',
+                        checked: getConfig().disableChatGroups,
+                        click: (menuItem) => {
+                            getConfig().disableChatGroups = menuItem.checked
+                            saveConfigFile()
+                            ui.setDisableChatGroupsSeeting(menuItem.checked)
+                        },
+                    },
+                ],
+            }),
+            new MenuItem({
+                label: '聊天',
+                submenu: [
+                    {
+                        label: '隐藏聊天图片',
+                        type: 'checkbox',
+                        checked: getConfig().hideChatImageByDefault,
+                        click: (menuItem) => {
+                            getConfig().hideChatImageByDefault = menuItem.checked
+                            saveConfigFile()
+                            ui.message('隐藏聊天图片已' + (menuItem.checked ? '开启' : '关闭'))
+                            ui.setHideChatImageByDefault(menuItem.checked)
+                        },
+                    },
+                    {
+                        label: '启用高亮 URL 功能',
+                        type: 'checkbox',
+                        checked: getConfig().linkify,
+                        click: (menuItem) => {
+                            getConfig().linkify = menuItem.checked
+                            saveConfigFile()
+                            ui.message('高亮 URL 功能已' + (menuItem.checked ? '开启' : '关闭') + '，重新加载后生效')
+                        },
+                    },
+                    {
+                        label: '发送消息快捷键',
+                        submenu: [
+                            {
+                                type: 'radio',
+                                label: 'Enter',
+                                checked: getConfig().keyToSendMessage === 'Enter',
+                                click: () => setKeyToSendMessage('Enter'),
+                            },
+                            {
+                                type: 'radio',
+                                label: 'Ctrl + Enter',
+                                checked: getConfig().keyToSendMessage === 'CtrlEnter',
+                                click: () => setKeyToSendMessage('CtrlEnter'),
+                            },
+                            {
+                                type: 'radio',
+                                label: 'Shift + Enter',
+                                checked: getConfig().keyToSendMessage === 'ShiftEnter',
+                                click: () => setKeyToSendMessage('ShiftEnter'),
+                            },
+                        ],
+                    },
+                ],
+            }),
+            new MenuItem({
+                label: '历史消息',
                 submenu: [
                     {
                         label: '切换会话窗口时自动获取历史消息',
@@ -971,96 +921,168 @@ export const updateAppMenu = async () => {
                 ],
             }),
             new MenuItem({
-                label: '性能优化方式',
+                label: '界面',
                 submenu: [
                     {
-                        label: 'infinite-loading (默认)',
-                        sublabel: '较慢，但更稳定',
-                        type: 'radio',
-                        checked: getConfig().optimizeMethod == 'infinite-loading',
-                        click() {
-                            getConfig().optimizeMethod = 'infinite-loading'
-                            ui.setOptimizeMethodSetting('infinite-loading')
-                            saveConfigFile()
-                            updateAppMenu()
-                        },
+                        label: '主题',
+                        submenu: (() => {
+                            let rsp: Electron.MenuItemConstructorOptions[] = [
+                                {
+                                    label: '跟随系统',
+                                    type: 'radio',
+                                    checked: getConfig().theme == 'auto',
+                                    click() {
+                                        getConfig().theme = 'auto'
+                                        themes.autoSetTheme()
+                                        saveConfigFile()
+                                        updateAppMenu()
+                                    },
+                                },
+                            ]
+                            for (let theme of themes.getThemeList()) {
+                                rsp.push({
+                                    label: theme,
+                                    type: 'radio',
+                                    checked: getConfig().theme == theme,
+                                    click: ((t) => () => {
+                                        getConfig().theme = t
+                                        themes.useTheme(t)
+                                        saveConfigFile()
+                                        updateAppMenu()
+                                    })(theme),
+                                })
+                            }
+                            return rsp
+                        })(),
                     },
                     {
-                        label: '滚动 (实验性)',
-                        sublabel: '预加载，有 BUG',
-                        type: 'radio',
-                        checked: getConfig().optimizeMethod == 'scroll',
-                        click() {
-                            getConfig().optimizeMethod = 'scroll'
-                            ui.setOptimizeMethodSetting('scroll')
-                            saveConfigFile()
-                            updateAppMenu()
-                        },
-                    },
-                    {
-                        label: '关闭 (不推荐)',
-                        sublabel: '不优化，快进到卡死 (',
-                        type: 'radio',
-                        checked: getConfig().optimizeMethod == 'none',
-                        click() {
-                            ui.chroom(0)
-                            ui.message(
-                                '不建议关闭性能优化，关闭后长时间挂机或浏览历史记录极易导致前端卡死。' +
-                                    '关闭后若前端卡死，可尝试杀死渲染进程并重新加载，亦可直接重启。',
-                            )
-                            getConfig().optimizeMethod = 'none'
-                            ui.setOptimizeMethodSetting('none')
-                            saveConfigFile()
-                            updateAppMenu()
-                        },
+                        label: '缩放比例',
+                        submenu: [100, 110, 125, 150, 175, 200].map((factor) => ({
+                            type: 'radio',
+                            label: `${factor}%`,
+                            checked: getConfig().zoomFactor === factor,
+                            click: () => {
+                                getMainWindow().webContents.setZoomFactor(factor / 100)
+                                getConfig().zoomFactor = factor
+                                saveConfigFile()
+                                updateAppMenu()
+                            },
+                        })),
                     },
                 ],
             }),
             new MenuItem({
-                label: '主题',
-                submenu: (() => {
-                    let rsp: Electron.MenuItemConstructorOptions[] = [
-                        {
-                            label: '跟随系统',
-                            type: 'radio',
-                            checked: getConfig().theme == 'auto',
-                            click() {
-                                getConfig().theme = 'auto'
-                                themes.autoSetTheme()
-                                saveConfigFile()
-                                updateAppMenu()
+                label: '高级',
+                submenu: [
+                    {
+                        label: '调试',
+                        visible: !version.isProduction && (versionClickTimes >= 3 || getConfig().debugmode === true),
+                        submenu: [
+                            {
+                                label: '启用',
+                                type: 'checkbox',
+                                checked: getConfig().debugmode === true,
+                                visible:
+                                    !version.isProduction && (versionClickTimes >= 3 || getConfig().debugmode === true),
+                                click: (menuItem) => {
+                                    getConfig().debugmode = menuItem.checked
+                                    if (!menuItem.checked) {
+                                        getConfig().anonymous = false
+                                    }
+                                    saveConfigFile()
+                                    updateAppMenu()
+                                },
                             },
-                        },
-                    ]
-                    for (let theme of themes.getThemeList()) {
-                        rsp.push({
-                            label: theme,
-                            type: 'radio',
-                            checked: getConfig().theme == theme,
-                            click: ((t) => () => {
-                                getConfig().theme = t
-                                themes.useTheme(t)
-                                saveConfigFile()
-                                updateAppMenu()
-                            })(theme),
-                        })
-                    }
-                    return rsp
-                })(),
-            }),
-            new MenuItem({
-                label: '缩放比例',
-                submenu: [100, 110, 125, 150, 175, 200].map((factor) => ({
-                    type: 'radio',
-                    label: `${factor}%`,
-                    checked: getConfig().zoomFactor === factor,
-                    click: () => {
-                        getMainWindow().webContents.setZoomFactor(factor / 100)
-                        getConfig().zoomFactor = factor
-                        saveConfigFile()
-                        updateAppMenu()
+                            {
+                                label: '以匿名方式发送群消息',
+                                type: 'checkbox',
+                                checked: getConfig().anonymous === true,
+                                visible: getConfig().debugmode === true && getConfig().sendRawMessage === false,
+                                click: (menuItem) => {
+                                    getConfig().anonymous = menuItem.checked
+                                    saveConfigFile()
+                                },
+                            },
+                            {
+                                label: '发送原始消息',
+                                type: 'checkbox',
+                                checked: getConfig().sendRawMessage === true,
+                                visible: getConfig().debugmode === true,
+                                click: (menuItem) => {
+                                    getConfig().sendRawMessage = menuItem.checked
+                                    saveConfigFile()
+                                    updateAppMenu()
+                                },
+                            },
+                        ],
                     },
-                })),
+                    {
+                        label: '启用插件',
+                        type: 'checkbox',
+                        checked: getConfig().custom === true,
+                        visible: getConfig().adapter === 'oicq', // TODO: 修改 Bridge 的配置
+                        click: (menuItem) => {
+                            getConfig().custom = menuItem.checked
+                            saveConfigFile()
+                        },
+                    },
+                    {
+                        label: '性能优化方式',
+                        submenu: [
+                            {
+                                label: 'infinite-loading (默认)',
+                                sublabel: '较慢，但更稳定',
+                                type: 'radio',
+                                checked: getConfig().optimizeMethod == 'infinite-loading',
+                                click() {
+                                    getConfig().optimizeMethod = 'infinite-loading'
+                                    ui.setOptimizeMethodSetting('infinite-loading')
+                                    saveConfigFile()
+                                    updateAppMenu()
+                                },
+                            },
+                            {
+                                label: '滚动 (实验性)',
+                                sublabel: '预加载，有 BUG',
+                                type: 'radio',
+                                checked: getConfig().optimizeMethod == 'scroll',
+                                click() {
+                                    getConfig().optimizeMethod = 'scroll'
+                                    ui.setOptimizeMethodSetting('scroll')
+                                    saveConfigFile()
+                                    updateAppMenu()
+                                },
+                            },
+                            {
+                                label: '关闭 (不推荐)',
+                                sublabel: '不优化，快进到卡死',
+                                type: 'radio',
+                                checked: getConfig().optimizeMethod == 'none',
+                                click() {
+                                    ui.chroom(0)
+                                    ui.message(
+                                        '不建议关闭性能优化，关闭后长时间挂机或浏览历史记录极易导致前端卡死。' +
+                                            '关闭后若前端卡死，可尝试杀死渲染进程并重新加载，亦可直接重启。',
+                                    )
+                                    getConfig().optimizeMethod = 'none'
+                                    ui.setOptimizeMethodSetting('none')
+                                    saveConfigFile()
+                                    updateAppMenu()
+                                },
+                            },
+                        ],
+                    },
+                ],
+            }),
+
+            new MenuItem({
+                label: '启动时检查更新',
+                type: 'checkbox',
+                checked: getConfig().updateCheck === true,
+                click: (menuItem) => {
+                    getConfig().updateCheck = menuItem.checked
+                    saveConfigFile()
+                },
             }),
         ],
         //捷径
@@ -1076,7 +1098,7 @@ export const updateAppMenu = async () => {
     }
     let template = [
         {
-            label: 'Icalingua++',
+            label: 'Icalinguim',
             submenu: Menu.buildFromTemplate(globalMenu.app),
         },
     ] as (Electron.MenuItem | Electron.MenuItemConstructorOptions)[]
@@ -1642,26 +1664,29 @@ ipcMain.on('popupTextAreaMenu', () => {
     Menu.buildFromTemplate([
         {
             role: 'cut',
+            label: '剪切',
         },
         {
             role: 'copy',
+            label: '复制',
         },
         {
             role: 'paste',
+            label: '粘贴',
         },
     ]).popup({ window: getMainWindow() })
 })
 ipcMain.on('popupStickerMenu', () => {
     Menu.buildFromTemplate([
         {
-            label: 'Open stickers folder',
+            label: '打开贴纸文件夹',
             type: 'normal',
             click() {
                 shell.openPath(path.join(app.getPath('userData'), 'stickers'))
             },
         },
         {
-            label: 'Send rps',
+            label: '猜拳',
             type: 'normal',
             click() {
                 ui.sendRps()
@@ -1669,7 +1694,7 @@ ipcMain.on('popupStickerMenu', () => {
             },
         },
         {
-            label: 'Send dice',
+            label: '抛骰子',
             type: 'normal',
             click() {
                 ui.sendDice()
@@ -1677,7 +1702,7 @@ ipcMain.on('popupStickerMenu', () => {
             },
         },
         {
-            label: 'Send shake',
+            label: '发送窗口抖动',
             type: 'normal',
             click() {
                 sendMessage({
@@ -1689,7 +1714,7 @@ ipcMain.on('popupStickerMenu', () => {
             },
         },
         {
-            label: 'Close panel',
+            label: '关闭',
             type: 'normal',
             click: ui.closePanel,
         },

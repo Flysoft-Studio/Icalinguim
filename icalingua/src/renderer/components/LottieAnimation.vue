@@ -65,7 +65,7 @@ export default {
     destroyed() {
         this.anim.destroy() // Releases resources. The DOM element will be emptied.
         window.removeEventListener('scroll', this.scrollHandle, true)
-        console.log('lottie animation destroyed.')
+        // console.log('lottie animation destroyed.')
     },
     methods: {
         async loadJsonData(path) {

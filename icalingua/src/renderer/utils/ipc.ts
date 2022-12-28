@@ -95,6 +95,9 @@ const ipc = {
     sendGroupPoke(gin: number, uin: number) {
         ipcRenderer.send('sendGroupPoke', gin, uin)
     },
+    showRequestWindow() {
+        ipcRenderer.send('showRequestWindow')
+    },
     reLogin() {
         ipcRenderer.send('reLogin')
     },

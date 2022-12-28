@@ -46,7 +46,7 @@ const processMessage = async (
                 message.flash = true
             // noinspection FallThroughInSwitchStatementJS 确信
             case 'image':
-                lastMessage.content += '[Image]'
+                lastMessage.content += '[图片]'
                 url = m.data.url
                 if (typeof m.data.file === 'string' && url.includes('c2cpicdw.qpic.cn')) {
                     const md5 = m.data.file.substr(0, 32)
@@ -102,8 +102,6 @@ const processMessage = async (
                             'group_id' in data
                                 ? (data as GroupMessageEventData).anonymous
                                     ? (data as GroupMessageEventData).anonymous.name
-                                    : oicq.getUin() === data.sender.user_id
-                                    ? 'You'
                                     : (data.sender as MemberBaseInfo).card || data.sender.nickname
                                 : (data.sender as FriendInfo).remark || data.sender.nickname
                         replyMessage = {
@@ -232,7 +230,7 @@ const processMessage = async (
                     message.content = appurl
                 } else if (md5ImageRegex.test(m.data.data)) {
                     const imgMd5 = (appurl = m.data.data.match(md5ImageRegex)[1])
-                    lastMessage.content += '[Image]'
+                    lastMessage.content += '[图片]'
                     url = getImageUrlByMd5(imgMd5)
                     message.file = {
                         type: 'image/jpeg',

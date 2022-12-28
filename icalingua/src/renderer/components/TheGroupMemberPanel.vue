@@ -2,7 +2,7 @@
     <div class="groupmember-root">
         <div class="groupmember-head-container">
             <div class="groupmember-head">
-                <el-input v-model="searchContext" placeholder="Search" prefix-icon="el-icon-search" clearable />
+                <el-input v-model="searchContext" placeholder="搜索" prefix-icon="el-icon-search" clearable />
                 <span class="el-icon-refresh-right groupmember-refresh" @click="refresh" />
             </div>
         </div>
@@ -52,7 +52,6 @@ export default {
     },
     async created() {
         const memberinfo = await ipcRenderer.invoke('getGroupMembers', this.gin)
-        console.log(memberinfo)
         if (memberinfo) {
             memberinfo.forEach((element) => {
                 const member = {

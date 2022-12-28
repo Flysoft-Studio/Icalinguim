@@ -103,7 +103,7 @@ const eventHandlers = {
         let senderName: string
         if (groupId && (<GroupMessageEventData>data).anonymous)
             senderName = (<GroupMessageEventData>data).anonymous.name
-        else if (groupId && isSelfMsg) senderName = 'You'
+        else if (groupId && isSelfMsg) senderName = '我'
         else if (groupId) senderName = (data.sender as MemberBaseInfo).card || data.sender.nickname
         else senderName = (data.sender as FriendInfo).remark || data.sender.nickname
         let roomName = 'group_name' in data ? data.group_name : senderName
@@ -218,7 +218,7 @@ const eventHandlers = {
                     const _message: Message = {
                         _id: '',
                         senderId: bot.uin,
-                        username: 'You',
+                        username: '我',
                         content: '',
                         timestamp: formatDate('hh:mm:ss'),
                         date: formatDate('yyyy/MM/dd'),
@@ -998,7 +998,7 @@ const adapter = {
         const message: Message = {
             _id: '',
             senderId: bot.uin,
-            username: 'You',
+            username: '我',
             content,
             timestamp: formatDate('hh:mm:ss'),
             date: formatDate('yyyy/MM/dd'),
@@ -1216,7 +1216,7 @@ const adapter = {
                 content,
                 timestamp: formatDate('hh:mm'),
             }
-            if (file || b64img || imgpath) room.lastMessage.content += '[Image]'
+            if (file || b64img || imgpath) room.lastMessage.content += '[图片]'
             let appurl
             let url
             if (messageType === 'xml') {
@@ -1236,7 +1236,7 @@ const adapter = {
                     message.content = appurl
                 } else if (md5ImageRegex.test(message.code)) {
                     const imgMd5 = (appurl = message.code.match(md5ImageRegex)[1])
-                    room.lastMessage.content = '[Image]'
+                    room.lastMessage.content = '[图片]'
                     url = getImageUrlByMd5(imgMd5)
                     message.file = {
                         type: 'image/jpeg',

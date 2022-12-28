@@ -17,6 +17,7 @@ import errorHandler from '../utils/errorHandler'
 import getFriends from '../utils/getFriends'
 import * as themes from '../utils/themes'
 import ChatGroup from '@icalingua/types/ChatGroup'
+import { showRequestWindow } from '../utils/windowManager'
 
 let adapter: Adapter
 if (getConfig().adapter === 'oicq') adapter = oicqAdapter
@@ -136,6 +137,7 @@ ipcMain.handle('fetchMessage', (_, { roomId, offset }: { roomId: number; offset:
     offset === 0 && getConfig().fetchHistoryOnChatOpen && fetchLatestHistory(roomId)
     return adapter.fetchMessages(roomId, offset)
 })
+ipcMain.on('showRequestWindow', () => showRequestWindow())
 ipcMain.on('sliderLogin', (_, ticket: string) => adapter.sliderLogin(ticket))
 ipcMain.on('reLogin', adapter.reLogin)
 ipcMain.on('updateRoom', (_, roomId: number, room: object) => adapter.updateRoom(roomId, room))

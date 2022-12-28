@@ -14,7 +14,7 @@
                 <div class="chat-group" style="overflow: overlay" @mousedown="handleMouseDown">
                     <SideBarIcon
                         icon="el-icon-chat-square"
-                        name="All Chats"
+                        name="全部聊天"
                         :selected="selectedChatGroup === 'chats'"
                         @click="selectedChatGroup = 'chats'"
                     />
@@ -30,7 +30,7 @@
                     />
                     <SideBarIcon
                         icon="el-icon-edit-outline"
-                        name="Edit"
+                        name="编辑"
                         @click="
                             $message({
                                 type: 'info',
@@ -38,7 +38,7 @@
                             })
                         "
                     />
-                    <SideBarIcon icon="el-icon-plus" name="Add" @click="editChatGroups" />
+                    <SideBarIcon icon="el-icon-plus" name="添加" @click="editChatGroups" />
                     <div style="height: 10px"></div>
                 </div>
             </el-aside>
@@ -115,14 +115,14 @@
                 </Room>
                 <pre
                     v-show="selectedRoomId === 0 && sysInfo"
-                    style="position: absolute; right: 13px; top: 0; font-family: monospace; color: rgb(156, 166, 175)"
+                    style="position: absolute; right: 13px; top: 0; font-family: 'Consolas'; color: rgb(156, 166, 175)"
                 >
  {{ sysInfo }} </pre
                 >
                 <div class="getting-history" v-if="historyCount">
                     <div class="pace-activity" />
-                    <span> 正在获取历史消息... {{ historyCount }} </span>
-                    <el-button @click="stopFetchingHistory" size="mini">就要这么多</el-button>
+                    <span> 正在获取历史消息: {{ historyCount }} </span>
+                    <el-button @click="stopFetchingHistory" size="mini">停止</el-button>
                 </div>
             </div>
             <MultipaneResizer class="resize-next" v-show="panel" />
@@ -393,7 +393,7 @@ export default {
             })
         })
         ipcRenderer.on('setCryptSecret', (_, roomId) => {
-            this.$prompt('请设置一个数据长度为16的密码，用于加密和解密消息，可留空（仅对聊天有效）', '提示', {
+            this.$prompt('请设置一个数据长度为16的密码，用于加密和解密消息，可留空（仅对当前聊天有效）', '提示', {
                 confirmButtonText: '确定',
                 cancelButtonText: '取消',
             }).then(({ value }) => {
@@ -556,7 +556,6 @@ Chromium ${process.versions.chrome}` : ''
                 this.uploadProgress = p
             }
         })
-        console.log('加载完成')
     },
     methods: {
         async sendMessage({content, roomId, file, replyMessage, room, b64img, imgpath, resend, sticker, messageType}) {
@@ -697,7 +696,7 @@ Chromium ${process.versions.chrome}` : ''
             this.messages = []
             this.panel = ''
             ipc.setSelectedRoom(0, '')
-            document.title = 'Icalingua++'
+            document.title = 'Icalinguim'
         },
         roomPanelResize(pane, resizer, size) {
             size = + size.slice(0, -2)
@@ -809,13 +808,11 @@ Chromium ${process.versions.chrome}` : ''
     },
     watch: {
         lastUnreadCount(n, o) {
-            console.log('lastUnreadCount', n)
             if (n !== 0) {
                 if (this.lastUnreadCheck) {
                     clearTimeout(this.lastUnreadCheck)
                 }
                 this.lastUnreadCheck = setTimeout(() => {
-                    console.log('Timeout')
                     this.lastUnreadCount = 0
                 }, 30000)
             }
@@ -824,7 +821,6 @@ Chromium ${process.versions.chrome}` : ''
             if (n === 'chats') {
                 this.visibleRooms = []
             } else {
-                console.log('selectedChatGroup', n)
                 const group = this.chatGroups.find(g => g.name === n)
                 this.visibleRooms = this.rooms.filter(e => {
                     if (!group) return false

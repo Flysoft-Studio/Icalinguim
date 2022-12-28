@@ -82,7 +82,6 @@ export default {
                 this.content = ''
                 this.timestamp = ''
             }
-            console.log(this.Messages)
         },
         createForward() {
             if (this.Messages.length > 0) {

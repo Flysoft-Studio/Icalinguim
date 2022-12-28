@@ -345,7 +345,7 @@ export default {
         selectMessage(event) {
             if (!this.showForwardPanel) return
             this.selected = !this.selected
-            console.log('selectMessage', this.selected)
+            // console.log('selectMessage', this.selected)
             this.$emit(this.selected ? 'add-msg-to-forward' : 'del-msg-to-forward', this.message._id)
             event.preventDefault()
         },

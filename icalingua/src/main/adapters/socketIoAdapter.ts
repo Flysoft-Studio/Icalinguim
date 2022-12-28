@@ -197,9 +197,9 @@ const attachSocketEvents = () => {
                     const notifParams = {
                         ...data.data,
                         summary: data.data.title,
-                        appName: 'Icalingua++',
+                        appName: 'Icalinguim',
                         category: 'im.received',
-                        'desktop-entry': 'icalingua',
+                        'desktop-entry': 'icalinguim',
                         urgency: 1,
                         timeout: 5000,
                         icon: await avatarCache(getAvatarUrl(data.roomId, true)),

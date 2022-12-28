@@ -2,10 +2,10 @@
     <div class="bg" ondragstart="return false;">
         <div class="head">
             <div class="title">
-                <a @click="setPanel('stickers')" :class="{ selected: panel === 'stickers' }">Stickers</a>
-                <a @click="setPanel('face')" :class="{ selected: panel === 'face' }">Face</a>
-                <a @click="setPanel('remote')" :class="{ selected: panel === 'remote' }">Remote</a>
-                <a @click="setPanel('emojis')" :class="{ selected: panel === 'emojis' }">Emojis</a>
+                <a @click="setPanel('face')" :class="{ selected: panel === 'face' }">经典</a>
+                <a @click="setPanel('remote')" :class="{ selected: panel === 'remote' }">已收藏</a>
+                <a @click="setPanel('stickers')" :class="{ selected: panel === 'stickers' }">贴纸</a>
+                <a @click="setPanel('emojis')" :class="{ selected: panel === 'emojis' }">Emoji</a>
             </div>
             <a @click="menu">
                 <div class="opinion">
@@ -22,7 +22,7 @@
         </div>
         <div v-show="panel === 'remote'" style="overflow: auto">
             <center v-show="!remote_pics.length">
-                <p>No remote stickers found</p>
+                <p>列表为空</p>
             </center>
             <div class="grid" v-show="remote_pics.length">
                 <div v-for="i in remote_pics" :key="i.id">
@@ -43,9 +43,9 @@
         </div>
         <div v-if="panel === 'stickers'" style="overflow: auto">
             <center v-show="!pics.length">
-                <p>No stickers found</p>
+                <p>没有找到贴纸</p>
                 <p>
-                    <el-button @click="folder">Open stickers folder</el-button>
+                    <el-button @click="folder">打开贴纸文件夹</el-button>
                 </p>
             </center>
             <div class="grid" v-show="pics.length">
@@ -111,7 +111,7 @@ export default {
         // Face
         this.dir_face = path.join(getStaticPath(), 'face/')
         if (!fs.existsSync(this.dir_face)) {
-            this.$message.error('No face folder found!')
+            this.$message.error('请放入表情图片')
             fs.mkdirSync(this.dir_face)
         }
         fs.readdir(this.dir_face, (_err, files) => {
@@ -195,7 +195,7 @@ export default {
             }
         },
         changeCurrentDir(dir) {
-            console.log("Stickers' directory changed: ", dir)
+            // console.log("Stickers' directory changed: ", dir)
             this.current_dir = dir
             let newDir = this.default_dir + this.current_dir + '/'
             if (dir == 'Default') {

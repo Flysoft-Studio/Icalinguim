@@ -47,7 +47,7 @@ export default {
         return {
             room: {
                 roomId: 0,
-                roomName: 'Forwarded Messages',
+                roomName: '查看转发的消息记录',
                 users: [
                     { _id: 3, username: '3' },
                     { _id: 31, username: '3' },
@@ -63,11 +63,9 @@ export default {
         document.title = '查看转发的消息记录'
         this.linkify = await ipc.getlinkifySetting()
         ipcRenderer.on('loadMessages', (event, args) => {
-            console.log(args)
             this.messages = [...args]
         })
         ipcRenderer.on('setResId', (event, args) => {
-            console.log(args)
             this.resId = args
         })
     },

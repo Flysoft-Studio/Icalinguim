@@ -31,11 +31,9 @@ export default {
     async created() {
         const STORE_PATH = await ipc.getStorePath()
         if (fs.existsSync(path.join(STORE_PATH, 'style.css'))) {
-            console.log('custom CSS applied')
             dynamicLoadCss('file://' + path.join(STORE_PATH, 'style.css'))
         }
         if (fs.existsSync(path.join(STORE_PATH, 'addon.js'))) {
-            console.log('custom js applied')
             dynamicLoadJs('file://' + path.join(STORE_PATH, 'addon.js'))
         }
     },
@@ -65,7 +63,7 @@ body {
 }
 
 * {
-    font-family: font, 'CircularSpotifyTxT Book Web', msyh, twemoji, 'PingFang SC', sans-serif;
+    font-family: font, 'Microsoft Yahei UI', twemoji, 'PingFang SC', sans-serif;
 }
 
 :focus {

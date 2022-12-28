@@ -52,11 +52,9 @@
                     :src="'file://' + facepath + preZeroFill(Number(message.value), 3)"
                     :alt="message.value"
                 />
-                <a v-if="message.forward" style="cursor: pointer" @click="openForward(message)">
-                    View Forwarded Messages
-                </a>
+                <a v-if="message.forward" style="cursor: pointer" @click="openForward(message)"> 查看转发的消息记录 </a>
                 <a v-if="message.nestedforward" style="cursor: pointer" @click="openNested(message)">
-                    View Forwarded Messages
+                    查看转发的消息记录
                 </a>
             </template>
         </div>

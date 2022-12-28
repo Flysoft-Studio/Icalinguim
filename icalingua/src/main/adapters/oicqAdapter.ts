@@ -105,7 +105,6 @@ const eventHandlers = {
         let senderName: string
         if (groupId && (<GroupMessageEventData>data).anonymous)
             senderName = (<GroupMessageEventData>data).anonymous.name
-        else if (groupId && isSelfMsg) senderName = 'You'
         else if (groupId) senderName = (data.sender as MemberBaseInfo).card || data.sender.nickname
         else senderName = (data.sender as FriendInfo).remark || data.sender.nickname
         let roomName = 'group_name' in data ? data.group_name : senderName
@@ -230,9 +229,9 @@ const eventHandlers = {
 
                     const notifParams = {
                         summary: room.roomName,
-                        appName: 'Icalingua++',
+                        appName: 'Icalinguim',
                         category: 'im.received',
-                        'desktop-entry': 'icalingua',
+                        'desktop-entry': 'icalinguim',
                         urgency: 1,
                         timeout: 5000,
                         body: (groupId ? senderName + ': ' : '') + lastMessage.content,
@@ -1432,7 +1431,7 @@ const adapter: OicqAdapter = {
                 content,
                 timestamp: formatDate('hh:mm'),
             }
-            if (file || b64img || imgpath) room.lastMessage.content += '[Image]'
+            if (file || b64img || imgpath) room.lastMessage.content += '[图片]'
             let appurl
             let url
             if (messageType === 'xml') {
@@ -1452,7 +1451,7 @@ const adapter: OicqAdapter = {
                     message.content = appurl
                 } else if (md5ImageRegex.test(message.code)) {
                     const imgMd5 = (appurl = message.code.match(md5ImageRegex)[1])
-                    room.lastMessage.content = '[Image]'
+                    room.lastMessage.content = '[图片]'
                     url = getImageUrlByMd5(imgMd5)
                     message.file = {
                         type: 'image/jpeg',

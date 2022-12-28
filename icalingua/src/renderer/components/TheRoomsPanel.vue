@@ -12,8 +12,9 @@
                     <el-avatar :src="getAvatarUrl(account)" />
                 </a>
             </el-popover>
-            <el-input class="more input" v-model="input" placeholder="Search" prefix-icon="el-icon-search" clearable />
+            <el-input class="more input" v-model="input" placeholder="搜索" prefix-icon="el-icon-search" clearable />
             <span class="more el-icon-user icon-button" @click="$emit('show-contacts')" title="联系人"></span>
+            <span class="more el-icon-circle-check icon-button" @click="showRequestWindow()" title="验证消息"></span>
             <span
                 class="more el-icon-delete icon-button"
                 @click="clearRooms"
@@ -78,9 +79,10 @@ export default {
         roomMenu(room) {
             ipc.popupRoomMenu(room.roomId)
         },
+        showRequestWindow() {
+            ipc.showRequestWindow()
+        },
         async clearRooms() {
-            console.log(this.allRooms)
-            console.log(this.clearRoomsBehavior)
             const now = Date.now()
             this.allRooms.forEach((r) => {
                 if (

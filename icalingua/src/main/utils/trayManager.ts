@@ -35,7 +35,7 @@ export const createTray = () => {
     return updateTrayMenu()
 }
 export const updateTrayMenu = async () => {
-    tray.setToolTip(`Icalingua++: ${getNickname()} (${getUin()})\n通知优先级: ${getConfig().priority.toString()}`)
+    tray.setToolTip(`Icalinguim: ${getNickname()} (${getUin()})\n通知优先级: ${getConfig().priority.toString()}`)
     const unreadRooms: Room[] = await getUnreadRooms()
     const menu = Menu.buildFromTemplate([
         {
@@ -191,7 +191,7 @@ let currentIconUnread = false
 export const updateTrayIcon = async (force = false) => {
     let p: Electron.NativeImage
     const unread = await getUnreadCount()
-    const title = ui.getSelectedRoomName() ? ui.getSelectedRoomName() + ' — Icalingua++' : 'Icalingua++'
+    const title = ui.getSelectedRoomName() ? ui.getSelectedRoomName() + ' — Icalinguim' : 'Icalinguim'
     const shouldUpdateIcon = currentIconUnread !== unread > 0
     currentIconUnread = unread > 0
     if (unread) {
