@@ -1,42 +1,18 @@
-# Icalingua++
+# Icalinguim · [![License](https://img.shields.io/aur/license/icalingua++)](https://github.com/Flysoft-Studio/Icalinguim/blob/develop/LICENSE)
 
-Icalingua++ 是 Icalingua 的分支，为已经删除的 Icalingua 提供有限的更新，同时欢迎社区提交PR。
+**🛠️WIP: 此项目正在进行中，可能有很多 bug，欢迎大家提交 PR。**
+
+Icalinguim 是 Icalingua++ 的分支，为 Icalingua++ 带来更强大的功能，如消息加密等，同时欢迎社区向此仓库或向上游仓库提交 PR，让两个项目都变得更好。
 
 Icalingua 这个名字是日语中「光」和拉丁语中「语言」的组合。
 
-本项目希望为 Linux 打造一个会话前端框架，通过实现 Adapter 后端接口来适配各种聊天平台。目前已经拥有基于 [oicq](https://github.com/takayama-lily/oicq) 以及 Icalingua 自有协议的后端
-
-[![State-of-the-art Shitcode](https://img.shields.io/static/v1?label=State-of-the-art&message=Shitcode&color=7B5804)](https://github.com/trekhleb/state-of-the-art-shitcode)
-[![License](https://img.shields.io/aur/license/icalingua++)](https://github.com/Icalingua-plus-plus/Icalingua-plus-plus/blob/develop/LICENSE)
-[![discord](https://img.shields.io/static/v1?label=chat&message=discord&color=7289da&logo=discord)](https://discord.gg/gKnU7BARzv)
-[![Telegram](https://img.shields.io/static/v1?label=Discussion&message=Telegram&color=blue&logo=telegram)](https://t.me/Icalinguapp)
-
-[![GitHub release (latest by date)](https://img.shields.io/github/downloads/Icalingua-plus-plus/Icalingua-plus-plus/latest/total)](https://github.com/Icalingua-plus-plus/Icalingua-plus-plus/releases/latest)
-[![AUR votes](https://img.shields.io/aur/votes/icalingua++)](https://aur.archlinux.org/packages/icalingua++/)
-（项目开发组没有 AUR 账号，感谢社区提供的 AUR Package）
+更多信息可查看 [https://github.com/Icalingua-plus-plus/Icalingua-plus-plus](https://github.com/Icalingua-plus-plus/Icalingua-plus-plus)
 
 ### 常用启动参数
 
-- 禁用硬件加速: `--dha`
-- 启动时隐藏主界面: `--hide`
-- 指定配置: `--config xxx.yaml`
-
-#### 分支状态
-
-##### develop
-
-[![Build/release](https://github.com/Icalingua-plus-plus/Icalingua-plus-plus/actions/workflows/main.yml/badge.svg?branch=develop)](https://github.com/Icalingua-plus-plus/Icalingua-plus-plus/actions/workflows/main.yml)
-
-[![GitHub package.json dependency version (prod)](https://img.shields.io/github/package-json/dependency-version/Icalingua-plus-plus/Icalingua-plus-plus/oicq-icalingua-plus-plus/develop?filename=icalingua%2Fpackage.json)](https://github.com/takayama-lily/oicq)
-[![GitHub package.json dependency version (dev dep on branch)](https://img.shields.io/github/package-json/dependency-version/Icalingua-plus-plus/Icalingua-plus-plus/dev/electron/develop?logo=electron&filename=icalingua%2Fpackage.json)](https://electronjs.org)
-
-### 统计
-
-[![Stargazers over time](https://starchart.cc/Icalingua-plus-plus/Icalingua-plus-plus.svg)](https://github.com/Icalingua-plus-plus/Icalingua-plus-plus/stargazers)
-
-### License
-
-[![](https://camo.githubusercontent.com/473b62766b498e4f2b008ada39f1d56fb3183649f24447866e25d958ac3fd79a/68747470733a2f2f7777772e676e752e6f72672f67726170686963732f6167706c76332d3135357835312e706e67)](https://www.gnu.org/licenses/agpl-3.0.txt)
+-   禁用硬件加速: `--dha`
+-   启动时隐藏主界面: `--hide`
+-   指定配置: `--config xxx.yaml`
 
 ### 免责声明
 
