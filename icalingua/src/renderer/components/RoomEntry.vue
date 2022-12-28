@@ -38,6 +38,7 @@
 
 <script>
 import getAvatarUrl from '../../utils/getAvatarUrl'
+import { decryptMessage } from './vac-mod/utils/crypt'
 
 export default {
     name: 'RoomEntry',
@@ -52,7 +53,12 @@ export default {
             if (this.room.roomId < 0 && this.room.lastMessage.username) {
                 d += this.room.lastMessage.username + ': '
             }
-            d += this.room.lastMessage.content
+
+            let msg = this.room.lastMessage.content
+            try {
+                msg = decryptMessage(msg)
+            } catch (error) {}
+            d += msg
             return d
         },
         timestamp() {

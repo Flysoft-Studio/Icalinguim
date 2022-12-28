@@ -392,6 +392,22 @@ export default {
                 fs.rmdir(path.join(STORE_PATH, 'stickers', dirname), { recursive: true }, () => this.$message('删除成功'))
             })
         })
+        ipcRenderer.on('setCryptSecret', (_, roomId) => {
+            this.$prompt('请设置一个16位的密码，用于加密和解密消息，可留空（仅对聊天有效）', '提示', {
+                confirmButtonText: '确定',
+                cancelButtonText: '取消',
+            }).then(({ value }) => {
+                if (!value) {
+                    this.selectedRoom.cryptSecret = null
+                } else if (value.length != 16){
+                    this.$message.error('无效的密码')
+                    return
+                }
+                this.selectedRoom.cryptSecret = value
+                ipc.updateRoom(this.selectedRoomId, this.selectedRoom)
+                this.fetchMessage(true)
+            })
+        })
         ipcRenderer.on('moveSticker', (_, filename) => {
             this.$prompt('请输入 Sticker 分类目录名称，若目录不存在则会自动创建', '提示', {
                 confirmButtonText: '确定',

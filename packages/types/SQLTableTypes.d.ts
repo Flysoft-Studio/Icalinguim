@@ -7,6 +7,7 @@ export interface MsgTableName {
 
 export interface DBVersion {
     dbVersion: number
+    fsForkDbVersion: number
 }
 
 export interface MessageInSQLDB extends Message {

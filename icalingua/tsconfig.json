@@ -4,7 +4,12 @@
         "target": "es5",
         "esModuleInterop": true,
         "sourceMap": false,
-        "resolveJsonModule": true
+        "resolveJsonModule": true,
+        "allowJs": true,
+        /* not used */
+        "outDir": ""
     },
-    "exclude": ["node_modules"]
+    /* not used */
+    "include": ["src"],
+    "exclude": ["node_modules", "dist"]
 }

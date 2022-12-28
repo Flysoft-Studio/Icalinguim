@@ -1,1 +1,1 @@
-../icalingua/.prettierrc.js
+module.exports = require('../icalingua/.prettierrc.js')

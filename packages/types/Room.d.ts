@@ -14,4 +14,5 @@ export default interface Room {
     lastMessage: LastMessage
     autoDownload?: boolean
     downloadPath?: string
+    cryptSecret?: string
 }

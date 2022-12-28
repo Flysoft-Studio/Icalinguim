@@ -593,6 +593,12 @@ const buildRoomMenu = (room: Room): Menu => {
             click: () => fetchLatestHistory(room.roomId),
         }),
     )
+    menu.append(
+        new MenuItem({
+            label: '设置消息密钥',
+            click: () => ui.setCryptSecret(room.roomId),
+        }),
+    )
     return menu
 }
 

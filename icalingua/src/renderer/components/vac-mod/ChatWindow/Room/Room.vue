@@ -87,7 +87,7 @@
                         >
                             <message
                                 :current-user-id="currentUserId"
-                                :message="m"
+                                :message="decryptMsg(m)"
                                 :index="i + visibleViewport.head"
                                 :messages="messages"
                                 :edited-message="editedMessage"
@@ -319,6 +319,17 @@
                         </slot>
                     </div>
 
+                    <div
+                        class="vac-svg-button"
+                        v-if="room.cryptSecret"
+                        @click="useEncrypt = !useEncrypt"
+                        :style="{
+                            opacity: `${useEncrypt ? 1 : 0.5}`,
+                        }"
+                    >
+                        <svg-icon name="toggle" />
+                    </div>
+
                     <div class="vac-svg-button" @click="$emit('stickers-panel')">
                         <svg-icon name="emoji" />
                     </div>
@@ -375,6 +386,8 @@ import RoomMessageReply from './RoomMessageReply'
 import RoomForwardMessage from './RoomForwardMessage'
 import Message from '../Message/Message'
 import SearchInput from '../../../SearchInput'
+
+import { encryptMessage, decryptMessage } from '../../utils/crypt'
 
 import faceNames from '../../../../../../static/faceNames'
 import getStaticPath from '../../../../../utils/getStaticPath'
@@ -486,6 +499,7 @@ export default {
             },
             optimizeMethod: 'infinite-loading',
             scrollingTolastMessage: 0,
+            useEncrypt: true,
         }
     },
     computed: {
@@ -750,6 +764,17 @@ export default {
         })
     },
     methods: {
+        decryptMsg(msg) {
+            if (this.room.cryptSecret) {
+                try {
+                    msg.content = decryptMessage(msg.content, this.room.cryptSecret)
+                } catch (error) {}
+                try {
+                    msg.replyMessage.content = decryptMessage(msg.replyMessage.content, this.room.cryptSecret)
+                } catch (error) {}
+            }
+            return msg
+        },
         sendForward(target, name) {
             if (this.msgstoForward.length <= 0) {
                 console.log('No Message Selected.')
@@ -984,6 +1009,8 @@ export default {
 
             const messageType = await ipc.getMessgeTypeSetting()
 
+            if (this.useEncrypt && this.room.cryptSecret) message = encryptMessage(message, this.room.cryptSecret)
+
             this.$emit('send-message', {
                 content: message,
                 file: this.file,
@@ -1009,6 +1036,8 @@ export default {
             if (!debugmode && message.match(/serviceID[\s]*?=[\s]*?('|")(13|60|76|83)('|")/g)) return
 
             const msgType = isJSON(message) ? 'json' : 'xml'
+
+            if (this.useEncrypt && this.room.cryptSecret) message = encryptMessage(message, this.room.cryptSecret)
 
             this.$emit('send-message', {
                 content: message,

@@ -69,6 +69,9 @@ export default {
         if (getConfig().silentFetchHistory && (string.startsWith('已拉取') || string === '开始拉取消息')) return
         sendToMainWindow('messageSuccess', string)
     },
+    setCryptSecret(roomId: number) {
+        sendToMainWindow('setCryptSecret', roomId)
+    },
     updateRoom(room: Room) {
         sendToMainWindow('updateRoom', room)
     },
