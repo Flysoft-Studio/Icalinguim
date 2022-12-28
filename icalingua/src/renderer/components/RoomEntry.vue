@@ -56,7 +56,7 @@ export default {
 
             let msg = this.room.lastMessage.content
             try {
-                msg = decryptMessage(msg)
+                msg = decryptMessage(msg, this.room.cryptSecret)
             } catch (error) {}
             d += msg
             return d

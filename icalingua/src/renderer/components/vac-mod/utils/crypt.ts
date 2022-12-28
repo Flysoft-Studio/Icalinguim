@@ -2,9 +2,8 @@ import crypto from 'crypto'
 const VERSION = 1
 const IV_LENGTH = 16
 const MSG_HEADER = ['auroraencryptmsg', 'encryptedamsg', 'aem', 'ema', 'eames']
-const SECRET = 'AuroraStudio1227'
 
-export function encryptMessage(content: string, secret: string = SECRET): string {
+export function encryptMessage(content: string, secret: string): string {
     let iv = crypto.randomBytes(IV_LENGTH)
     let cipher = crypto.createCipheriv('aes-128-gcm', secret.split('').reverse().join(''), iv)
     let hex = cipher.update(content.split('').reverse().join(''), 'utf8', 'hex')
@@ -29,7 +28,7 @@ export function encryptMessage(content: string, secret: string = SECRET): string
     return msg
 }
 
-export function decryptMessage(content: string, secret: string = SECRET): string {
+export function decryptMessage(content: string, secret: string): string {
     let questionPos = content.indexOf('?'),
         quotationPos = content.indexOf('"'),
         colonPos = content.indexOf(':')
