@@ -82,7 +82,8 @@ jobs:
       - name: pnpm install
         run: pnpm install
 
-      - id: Get version tag
+      - name: Get version tag
+        id: git-ver
         run: echo "version=$(git describe --tags | sed 's/v//')" >> $env:GITHUB_OUTPUT
 
       - name: Write version info
@@ -163,7 +164,8 @@ jobs:
       - name: pnpm install
         run: pnpm install
 
-      - id: Get version tag
+      - name: Get version tag
+        id: git-ver
         run: echo "version=$(git describe --tags | sed "s/v//")" >> $GITHUB_OUTPUT
 
       - name: Write version info
