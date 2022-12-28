@@ -49,10 +49,6 @@ jobs:
         run: pnpm build
         working-directory: icalingua
 
-      - name: Rename
-        run: ../../.github/winrename.bat x64
-        working-directory: icalingua/build
-
       - uses: actions/upload-artifact@v3
         name: Upload artifact
         with:
