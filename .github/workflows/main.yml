@@ -26,576 +26,6 @@ jobs:
       - name: pnpm install
         run: pnpm install
 
-  arch-artifacts:
-    runs-on: ubuntu-20.04
-    defaults:
-      run:
-        working-directory: icalingua
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: upload artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: pkgres
-          path: pkgres/*
-          if-no-files-found: error
-
-  build-dist-bundle:
-    runs-on: ubuntu-20.04
-    needs: install
-    outputs:
-      version: ${{ steps.git-ver.outputs.version }}
-      arch-version: ${{ steps.version.outputs.arch-version }}
-      pkg-name: ${{ steps.version.outputs.pkg-name }}
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3
-
-      - name: Install pnpm
-        run: corepack enable
-
-      - name: Cache pnpm and node-modules
-        uses: Icalinguaplusplus/node-pm-action@master
-        with:
-          node-modules: ./node_modules
-          package-manager: pnpm
-
-      - name: pnpm install
-        run: pnpm install
-
-      - id: git-ver
-        run: echo "version=$(git describe --tags | sed "s/v//")" >> $GITHUB_OUTPUT
-
-      - name: check version and write version info
-        run: node .github/check-version.js
-        id: version
-        env:
-          SHA: ${{ github.sha }}
-          REF: ${{ github.REF }}
-          GIT_VER: ${{ steps.git-ver.outputs.version }}
-
-      - name: build
-        run: pnpm build:ci
-        working-directory: icalingua
-
-      - name: upload dist
-        uses: actions/upload-artifact@v3
-        with:
-          name: dist
-          path: icalingua/dist
-          if-no-files-found: error
-
-  # deb rpm appimage 之类的文件可以待会儿再构建，现在拿到 app.asar 之后就能构建 arch 包了
-  build-x86_64:
-    runs-on: ubuntu-20.04
-    needs: build-dist-bundle
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3
-
-      - name: get dist
-        uses: actions/download-artifact@v3
-        with:
-          name: dist
-          path: icalingua/dist
-
-      - name: Install pnpm
-        run: corepack enable
-
-      - name: Cache pnpm and node-modules
-        uses: Icalinguaplusplus/node-pm-action@master
-        with:
-          node-modules: ./node_modules
-          package-manager: pnpm
-
-      - name: pnpm install
-        run: pnpm install
-
-      - name: build native modules
-        run: pnpm build:electron install-app-deps
-        working-directory: icalingua
-
-      - name: build
-        run: pnpm build:electron --dir -c.extraMetadata.version=${{ needs.build-dist-bundle.outputs.version }}
-        working-directory: icalingua
-
-      - uses: actions/upload-artifact@v3
-        name: upload app-x86_64.asar
-        with:
-          name: app-x86_64.asar
-          path: icalingua/build/linux-unpacked/resources/app.asar
-          if-no-files-found: error
-
-      - uses: actions/upload-artifact@v3
-        name: upload x86_64
-        with:
-          name: x86_64-unpacked
-          path: icalingua/build/linux-unpacked
-          if-no-files-found: error
-
-  build-arm64:
-    runs-on: ubuntu-20.04
-    needs: build-dist-bundle
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3
-
-      - name: Install pnpm
-        run: corepack enable
-
-      - name: Cache pnpm and node-modules
-        uses: Icalinguaplusplus/node-pm-action@master
-        with:
-          node-modules: ./node_modules
-          package-manager: pnpm
-
-      - name: pnpm install
-        run: pnpm install
-
-      - name: get dist
-        uses: actions/download-artifact@v3
-        with:
-          name: dist
-          path: icalingua/dist
-
-      - uses: uraimo/run-on-arch-action@v2.3.0
-        name: build native modules using another arch
-        with:
-          arch: aarch64
-          distro: ubuntu20.04
-          githubToken: ${{ github.token }}
-          dockerRunArgs: |
-            --volume "${PWD}:/build"
-            --volume "/home/runner:/home/runner"
-          install: |
-            apt-get update && apt-get install -y gnupg2 && apt-get install curl -y
-            curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
-            apt-get install -y nodejs gcc g++ make
-            apt update && apt install python2 python -y
-            corepack enable
-          run: |
-            uname -a
-            chmod -R 777 /build
-            cd /build/icalingua
-            pnpm config set store-dir /home/runner/.local/share/pnpm/store/v3
-            pnpm build:electron install-app-deps
-
-      - name: build
-        run: pnpm build:electron --arm64 --dir -c.extraMetadata.version=${{ needs.build-dist-bundle.outputs.version }}
-        working-directory: icalingua
-
-      - uses: actions/upload-artifact@v3
-        name: upload app.asar
-        with:
-          name: app-arm64.asar
-          path: icalingua/build/linux-arm64-unpacked/resources/app.asar
-          if-no-files-found: error
-
-      - uses: actions/upload-artifact@v3
-        name: upload unpacked
-        with:
-          name: arm64-unpacked
-          path: icalingua/build/linux-arm64-unpacked
-          if-no-files-found: error
-
-  build-armv7l:
-    runs-on: ubuntu-20.04
-    needs: build-dist-bundle
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3
-
-      - name: Install pnpm
-        run: corepack enable
-
-      - name: Cache pnpm and node-modules
-        uses: Icalinguaplusplus/node-pm-action@master
-        with:
-          node-modules: ./node_modules
-          package-manager: pnpm
-
-      - name: pnpm install
-        run: pnpm install
-
-      - name: get dist
-        uses: actions/download-artifact@v3
-        with:
-          name: dist
-          path: icalingua/dist
-
-      - uses: uraimo/run-on-arch-action@v2.3.0
-        name: build native modules using another arch
-        with:
-          arch: armv7
-          distro: ubuntu20.04
-          githubToken: ${{ github.token }}
-          dockerRunArgs: |
-            --volume "${PWD}:/build"
-            --volume "/home/runner:/home/runner"
-          install: |
-            apt-get update && apt-get install -y gnupg2 && apt-get install curl -y
-            curl -fsSL https://deb.nodesource.com/setup_16.x | bash -
-            apt-get install -y nodejs gcc g++ make
-            apt update && apt install python2 python -y
-            corepack enable
-          run: |
-            uname -a
-            chmod -R 777 /build
-            cd /build/icalingua
-            pnpm config set store-dir /home/runner/.local/share/pnpm/store/v3
-            pnpm build:electron install-app-deps
-
-      - name: build
-        run: pnpm build:electron --armv7l --dir -c.extraMetadata.version=${{ needs.build-dist-bundle.outputs.version }}
-        working-directory: icalingua
-
-      - uses: actions/upload-artifact@v3
-        name: upload app.asar
-        with:
-          name: app-armv7l.asar
-          path: icalingua/build/linux-armv7l-unpacked/resources/app.asar
-          if-no-files-found: error
-
-      - uses: actions/upload-artifact@v3
-        name: upload unpacked
-        with:
-          name: armv7l-unpacked
-          path: icalingua/build/linux-armv7l-unpacked
-          if-no-files-found: error
-
-  pack-archpkg-x86_64:
-    runs-on: ubuntu-20.04
-    needs:
-      - arch-artifacts
-      - build-x86_64
-      - build-dist-bundle
-    steps:
-      - name: get the assets
-        uses: actions/download-artifact@v3
-        with:
-          name: pkgres
-
-      - name: print the PKGBUILD for x86_64
-        shell: bash
-        run: sed 's/VERSION/${{ needs.build-dist-bundle.outputs.arch-version }}/;s/ARCH/x86_64/' ${{ needs.build-dist-bundle.outputs.pkg-name }}.PKGBUILD.template > PKGBUILD
-
-      - name: get binary for x86_64
-        uses: actions/download-artifact@v3
-        with:
-          name: app-x86_64.asar
-
-      - run: chmod -R 777 .
-
-      - name: makepkg for x86_64
-        uses: Icalinguaplusplus/archlinux-package-action@main
-        with:
-          flags: "-cfd --noconfirm"
-          namcap: false
-          updpkgsums: true
-
-      - id: pkgname
-        run: echo "pkgname=$(ls *-x86_64.pkg.*)" >> $GITHUB_OUTPUT
-
-      - uses: actions/upload-artifact@v3
-        name: upload x86_64
-        with:
-          name: x86_64.pkg.tar.zst
-          path: ${{ steps.pkgname.outputs.pkgname }}
-          if-no-files-found: error
-
-      - name: sync docker dir
-        run: |
-          sudo mkdir /github
-          sudo ln -s $PWD /github/workspace
-
-  pack-archpkg-aarch64:
-    runs-on: ubuntu-20.04
-    needs:
-      - build-dist-bundle
-      - arch-artifacts
-      - build-arm64
-    steps:
-      - name: get the assets
-        uses: actions/download-artifact@v3
-        with:
-          name: pkgres
-
-      - name: print the PKGBUILD for aarch64
-        shell: bash
-        run: sed 's/VERSION/${{ needs.build-dist-bundle.outputs.arch-version }}/;s/ARCH/aarch64/' ${{ needs.build-dist-bundle.outputs.pkg-name }}.PKGBUILD.template > PKGBUILD
-
-      - name: get binary for aarch64
-        uses: actions/download-artifact@v3
-        with:
-          name: app-arm64.asar
-
-      - run: chmod -R 777 .
-
-      - name: makepkg for aarch64
-        uses: Icalinguaplusplus/archlinux-package-action@main
-        with:
-          carch: aarch64
-          flags: "-cfd --noconfirm"
-          namcap: false
-          updpkgsums: true
-
-      - id: pkgname
-        run: echo "pkgname=$(ls *-aarch64.pkg.*)" >> $GITHUB_OUTPUT
-
-      - uses: actions/upload-artifact@v3
-        name: upload aarch64
-        with:
-          name: aarch64.pkg.tar.zst
-          path: ${{ steps.pkgname.outputs.pkgname }}
-          if-no-files-found: error
-
-      - name: sync docker dir
-        run: |
-          sudo mkdir /github
-          sudo ln -s $PWD /github/workspace
-
-  pack-archpkg-armv7l:
-    runs-on: ubuntu-20.04
-    needs:
-      - build-dist-bundle
-      - arch-artifacts
-      - build-armv7l
-    steps:
-      - name: get the assets
-        uses: actions/download-artifact@v3
-        with:
-          name: pkgres
-
-      - name: print the PKGBUILD for armv7l
-        shell: bash
-        run: sed 's/VERSION/${{ needs.build-dist-bundle.outputs.arch-version }}/;s/ARCH/armv7l/' ${{ needs.build-dist-bundle.outputs.pkg-name }}.PKGBUILD.template > PKGBUILD
-
-      - name: get binary for armv7l
-        uses: actions/download-artifact@v3
-        with:
-          name: app-armv7l.asar
-
-      - run: chmod -R 777 .
-
-      - name: makepkg for armv7l
-        uses: Icalinguaplusplus/archlinux-package-action@main
-        with:
-          carch: armv7l
-          flags: "-cfd --noconfirm"
-          namcap: false
-          updpkgsums: true
-
-      - id: pkgname
-        run: echo "pkgname=$(ls *-armv7l.pkg.*)" >> $GITHUB_OUTPUT
-
-      - uses: actions/upload-artifact@v3
-        name: upload armv7l
-        with:
-          name: armv7l.pkg.tar.zst
-          path: ${{ steps.pkgname.outputs.pkgname }}
-          if-no-files-found: error
-
-      - name: sync docker dir
-        run: |
-          sudo mkdir /github
-          sudo ln -s $PWD /github/workspace
-
-  pack-otherpkg-x86_64:
-    runs-on: ubuntu-20.04
-    needs:
-      - build-x86_64
-      - build-dist-bundle
-    strategy:
-      matrix:
-        package:
-          - deb
-          - rpm
-          - AppImage
-          - tar.xz
-    defaults:
-      run:
-        working-directory: icalingua
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3
-
-      - name: Install pnpm
-        run: corepack enable
-
-      - name: Cache pnpm and node-modules
-        uses: Icalinguaplusplus/node-pm-action@master
-        with:
-          node-modules: ./node_modules
-          package-manager: pnpm
-
-      - name: pnpm install
-        run: pnpm install
-
-      - name: get built files
-        uses: actions/download-artifact@v3
-        with:
-          name: x86_64-unpacked
-          path: icalingua/unpacked
-
-      - name: fix premissions
-        run: chmod +x unpacked/icalingua
-
-      - name: pack
-        run: pnpm build:electron --pd unpacked -l ${{ matrix.package }} -c.extraMetadata.version=${{ needs.build-dist-bundle.outputs.version }}
-
-      - uses: actions/upload-artifact@v3
-        name: upload ${{ matrix.package }}
-        with:
-          name: x86_64.${{ matrix.package }}
-          path: icalingua/build/*.${{ matrix.package }}
-          if-no-files-found: error
-
-  pack-otherpkg-arm64:
-    runs-on: ubuntu-20.04
-    needs:
-      - build-arm64
-      - build-dist-bundle
-    strategy:
-      matrix:
-        package:
-          - deb
-          - rpm
-          - AppImage
-          - tar.xz
-    defaults:
-      run:
-        working-directory: icalingua
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3
-
-      - name: Install pnpm
-        run: corepack enable
-
-      - name: Cache pnpm and node-modules
-        uses: Icalinguaplusplus/node-pm-action@master
-        with:
-          node-modules: ./node_modules
-          package-manager: pnpm
-
-      - name: pnpm install
-        run: pnpm install
-
-      - name: get built files
-        uses: actions/download-artifact@v3
-        with:
-          name: arm64-unpacked
-          path: icalingua/unpacked
-
-      - name: fix premissions
-        run: chmod +x unpacked/icalingua
-
-      - name: pack
-        run: pnpm build:electron --pd unpacked --arm64 -l ${{ matrix.package }} -c.extraMetadata.version=${{ needs.build-dist-bundle.outputs.version }}
-
-      - uses: actions/upload-artifact@v3
-        name: upload ${{ matrix.package }}
-        with:
-          name: arm64.${{ matrix.package }}
-          path: icalingua/build/*.${{ matrix.package }}
-          if-no-files-found: error
-
-  pack-otherpkg-armv7l:
-    runs-on: ubuntu-20.04
-    needs:
-      - build-armv7l
-      - build-dist-bundle
-    strategy:
-      matrix:
-        package:
-          - deb
-          - rpm
-          - AppImage
-          - tar.xz
-    defaults:
-      run:
-        working-directory: icalingua
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3
-
-      - name: Install pnpm
-        run: corepack enable
-
-      - name: Cache pnpm and node-modules
-        uses: Icalinguaplusplus/node-pm-action@master
-        with:
-          node-modules: ./node_modules
-          package-manager: pnpm
-
-      - name: pnpm install
-        run: pnpm install
-
-      - name: get built files
-        uses: actions/download-artifact@v3
-        with:
-          name: armv7l-unpacked
-          path: icalingua/unpacked
-
-      - name: fix premissions
-        run: chmod +x unpacked/icalingua
-
-      - name: pack
-        run: pnpm build:electron --pd unpacked --armv7l -l ${{ matrix.package }} -c.extraMetadata.version=${{ needs.build-dist-bundle.outputs.version }}
-
-      - uses: actions/upload-artifact@v3
-        name: upload ${{ matrix.package }}
-        with:
-          name: armv7l.${{ matrix.package }}
-          path: icalingua/build/*.${{ matrix.package }}
-          if-no-files-found: error
-
-  cleanup:
-    runs-on: ubuntu-20.04
-    needs:
-      - pack-otherpkg-arm64
-      - pack-otherpkg-x86_64
-      - pack-otherpkg-armv7l
-      - build-x86_64
-      - build-arm64
-      - build-armv7l
-      - pack-archpkg-x86_64
-      - pack-archpkg-aarch64
-      - pack-archpkg-armv7l
-    steps:
-      - uses: geekyeggo/delete-artifact@v2
-        with:
-          name: dist
-      - uses: geekyeggo/delete-artifact@v2
-        with:
-          name: x86_64-unpacked
-      - uses: geekyeggo/delete-artifact@v2
-        with:
-          name: arm64-unpacked
-      - uses: geekyeggo/delete-artifact@v2
-        with:
-          name: armv7l-unpacked
-      - uses: geekyeggo/delete-artifact@v2
-        with:
-          name: pkgres
-
   pack-bridge-js:
     runs-on: ubuntu-20.04
     defaults:
@@ -623,14 +53,14 @@ jobs:
       - name: Compile
         run: pnpm compile
 
-      - name: upload artifacts
+      - name: Upload artifacts
         uses: actions/upload-artifact@v3
         with:
           name: bridge-oicq
           path: icalingua-bridge-oicq/build/
           if-no-files-found: error
 
-  build-windows64:
+  build-windows-x64:
     runs-on: windows-2019
     outputs:
       version: ${{ steps.git-ver.outputs.version }}
@@ -652,10 +82,10 @@ jobs:
       - name: pnpm install
         run: pnpm install
 
-      - id: git-ver
+      - id: Get version tag
         run: echo "version=$(git describe --tags | sed 's/v//')" >> $env:GITHUB_OUTPUT
 
-      - name: check version and write version info
+      - name: Write version info
         run: node .github/check-version.js
         id: version
         env:
@@ -663,77 +93,18 @@ jobs:
           REF: ${{ github.REF }}
           GIT_VER: ${{ steps.git-ver.outputs.version }}
 
-      - name: build
+      - name: Build
         run: pnpm build
         working-directory: icalingua
 
-      - name: rename
+      - name: Rename
         run: ../../.github/winrename.bat x64
         working-directory: icalingua/build
 
       - uses: actions/upload-artifact@v3
-        name: Upload Icalingua_Windows64.exe
+        name: Upload artifact
         with:
           name: Icalingua_Windows64.exe
-          path: icalingua/build/Icalingua++*.exe
-          if-no-files-found: error
-
-  build-windows-arm64:
-    runs-on: windows-2019
-    outputs:
-      version: ${{ steps.git-ver.outputs.version }}
-      arch-version: ${{ steps.version.outputs.arch-version }}
-      pkg-name: ${{ steps.version.outputs.pkg-name }}
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-
-      - name: Setup Node.js environment
-        uses: actions/setup-node@v3
-        with:
-          node-version: "16.13.0"
-
-      - name: Install pnpm
-        run: corepack enable
-
-      - name: Fetch node.lib and pnpm install
-        shell: cmd
-        run: |
-          set npm_config_arch=arm64
-          set node_version=16.13.0
-          mkdir %APPDATA%\..\Local\node-gyp\Cache\%node_version%\arm64
-          curl -Lo %APPDATA%\..\Local\node-gyp\Cache\%node_version%\arm64\node.lib https://unofficial-builds.nodejs.org/download/release/v%node_version%/win-arm64/node.lib
-          pnpm install
-
-      - id: git-ver
-        run: echo "version=$(git describe --tags | sed 's/v//')" >> $env:GITHUB_OUTPUT
-
-      - name: check version and write version info
-        run: node .github/check-version.js
-        id: version
-        env:
-          SHA: ${{ github.sha }}
-          REF: ${{ github.REF }}
-          GIT_VER: ${{ steps.git-ver.outputs.version }}
-
-      - name: build
-        shell: cmd
-        run: |
-          set npm_config_arch=arm64
-          set node_version=16.13.0
-
-          cmd.exe /c "pnpm i & pnpm deps:woa & pnpm build:ci & pnpm build:woa"
-        working-directory: icalingua
-
-      - name: rename
-        run: ../../.github/winrename.bat arm64
-        working-directory: icalingua/build
-
-      - uses: actions/upload-artifact@v3
-        name: Upload Icalingua_Windows_arm64.exe
-        with:
-          name: Icalingua_Windows_arm64.exe
           path: icalingua/build/Icalingua++*.exe
           if-no-files-found: error
 
@@ -792,10 +163,10 @@ jobs:
       - name: pnpm install
         run: pnpm install
 
-      - id: git-ver
+      - id: Get version tag
         run: echo "version=$(git describe --tags | sed "s/v//")" >> $GITHUB_OUTPUT
 
-      - name: check version and write version info
+      - name: Write version info
         run: node .github/check-version.js
         id: version
         env:
@@ -803,16 +174,16 @@ jobs:
           REF: ${{ github.REF }}
           GIT_VER: ${{ steps.git-ver.outputs.version }}
 
-      - name: build
+      - name: Build
         run: pnpm build
         working-directory: icalingua
 
-      - name: rename
+      - name: Rename
         run: for i in *.dmg;do mv "$i" "${i%.dmg}_x64.dmg" ;done
         working-directory: icalingua/build
 
       - uses: actions/upload-artifact@v3
-        name: Upload Icalingua++_x64.dmg
+        name: Upload artifact
         with:
           name: Icalingua++_x64.dmg
           path: icalingua/build/Icalingua++*.dmg
@@ -822,141 +193,19 @@ jobs:
     runs-on: ubuntu-20.04
     if: ${{ startsWith(github.ref, 'refs/tags/v') }}
     needs:
-      - pack-archpkg-x86_64
-      - pack-archpkg-aarch64
-      - pack-archpkg-armv7l
-      - pack-otherpkg-x86_64
-      - pack-otherpkg-arm64
-      - pack-otherpkg-armv7l
-      - build-dist-bundle
-      - build-windows64
+      - build-windows-x64
       - build-macos-x64
-      - build-windows-arm64
     steps:
       - name: Make dir
         run: mkdir release
 
-      - name: get app-x86_64.asar
-        uses: actions/download-artifact@v3
-        with:
-          name: app-x86_64.asar
-
-      - name: rename app-x86_64.asar
-        run: mv app.asar release/app-x86_64.asar
-
-      - name: get app-arm64.asar
-        uses: actions/download-artifact@v3
-        with:
-          name: app-arm64.asar
-
-      - name: rename app-arm64.asar
-        run: mv app.asar release/app-arm64.asar
-
-      - name: get app-armv7l.asar
-        uses: actions/download-artifact@v3
-        with:
-          name: app-armv7l.asar
-
-      - name: rename app-armv7l.asar
-        run: mv app.asar release/app-armv7l.asar
-
-      - name: get aarch64.pkg.tar.zst
-        uses: actions/download-artifact@v3
-        with:
-          name: aarch64.pkg.tar.zst
-          path: release
-
-      - name: get arm64.AppImage
-        uses: actions/download-artifact@v3
-        with:
-          name: arm64.AppImage
-          path: release
-
-      - name: get arm64.deb
-        uses: actions/download-artifact@v3
-        with:
-          name: arm64.deb
-          path: release
-
-      - name: get arm64.rpm
-        uses: actions/download-artifact@v3
-        with:
-          name: arm64.rpm
-          path: release
-
-      - name: get arm64.tar.xz
-        uses: actions/download-artifact@v3
-        with:
-          name: arm64.tar.xz
-          path: release
-
-      - name: get armv7l.AppImage
-        uses: actions/download-artifact@v3
-        with:
-          name: armv7l.AppImage
-          path: release
-
-      - name: get armv7l.deb
-        uses: actions/download-artifact@v3
-        with:
-          name: armv7l.deb
-          path: release
-
-      - name: get armv7l.rpm
-        uses: actions/download-artifact@v3
-        with:
-          name: armv7l.rpm
-          path: release
-
-      - name: get armv7l.tar.xz
-        uses: actions/download-artifact@v3
-        with:
-          name: armv7l.tar.xz
-          path: release
-
-      - name: get x86_64.AppImage
-        uses: actions/download-artifact@v3
-        with:
-          name: x86_64.AppImage
-          path: release
-
-      - name: get x86_64.tar.xz
-        uses: actions/download-artifact@v3
-        with:
-          name: x86_64.tar.xz
-          path: release
-
-      - name: get x86_64.deb
-        uses: actions/download-artifact@v3
-        with:
-          name: x86_64.deb
-          path: release
-
-      - name: get x86_64.pkg.tar.zst
-        uses: actions/download-artifact@v3
-        with:
-          name: x86_64.pkg.tar.zst
-          path: release
-
-      - name: get x86_64.rpm
-        uses: actions/download-artifact@v3
-        with:
-          name: x86_64.rpm
-          path: release
-
-      - name: get Icalingua_Windows64.exe
+      - name: Get Icalingua_Windows64.exe
         uses: actions/download-artifact@v3
         with:
           name: Icalingua_Windows64.exe
           path: release
 
-      - name: get Icalingua_Windows_arm64.exe
-        uses: actions/download-artifact@v3
-        with:
-          name: Icalingua_Windows_arm64.exe
-          path: release
-
-      - name: get Icalingua++_x64.dmg
+      - name: Get Icalingua++_x64.dmg
         uses: actions/download-artifact@v3
         with:
           name: Icalingua++_x64.dmg
