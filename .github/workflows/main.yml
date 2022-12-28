@@ -314,8 +314,7 @@ jobs:
           path: ${{ steps.pkgname.outputs.pkgname }}
           if-no-files-found: error
 
-      - name: 同步 docker 内外目录
-        # $PWD 在 docker 中被映射到 /github/workspace
+      - name: sync docker dir
         run: |
           sudo mkdir /github
           sudo ln -s $PWD /github/workspace
@@ -361,8 +360,7 @@ jobs:
           path: ${{ steps.pkgname.outputs.pkgname }}
           if-no-files-found: error
 
-      - name: 同步 docker 内外目录
-        # $PWD 在 docker 中被映射到 /github/workspace
+      - name: sync docker dir
         run: |
           sudo mkdir /github
           sudo ln -s $PWD /github/workspace
@@ -408,8 +406,7 @@ jobs:
           path: ${{ steps.pkgname.outputs.pkgname }}
           if-no-files-found: error
 
-      - name: 同步 docker 内外目录
-        # $PWD 在 docker 中被映射到 /github/workspace
+      - name: sync docker dir
         run: |
           sudo mkdir /github
           sudo ln -s $PWD /github/workspace
