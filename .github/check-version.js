@@ -36,9 +36,9 @@ const commitId = process.env.SHA.substr(0, 7);
 const ref = process.env.REF;
 const isProduction = ref.startsWith("refs/tags/v");
 const buildTime = now.toLocaleString(undefined, { timeZone: "Asia/Shanghai" });
-const version = process.env.GIT_VER;
+const version = process.env.GIT_VER.replace(".fs.", "");
 
-packageJson.version = version.replace(".fs.", "");
+packageJson.version = version;
 
 console.log(`commitId: ${commitId}
 ref: ${ref}
