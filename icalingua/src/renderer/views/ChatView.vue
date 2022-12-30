@@ -151,7 +151,7 @@
             </transition>
         </Multipane>
         <el-dialog
-            title="You are offline"
+            title="你的账号在别处登录"
             :visible.sync="offline"
             width="30%"
             :close-on-click-modal="false"
@@ -160,7 +160,7 @@
         >
             <span>{{ offlineReason }}</span>
             <span slot="footer" class="dialog-footer">
-                <el-button type="primary" @click="reconnect" :loading="reconnecting"> Reconnect now </el-button>
+                <el-button type="primary" @click="reconnect" :loading="reconnecting"> 重新登录 </el-button>
             </span>
         </el-dialog>
         <el-dialog title="联系人" :visible.sync="contactsShown" top="5vh" class="dialog">

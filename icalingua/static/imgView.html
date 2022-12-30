@@ -85,6 +85,7 @@
                     function updatePosition() {
                         if (lockedState == 'fit') sizeFit()
                         else if (lockedState == 'center') posCenter()
+                        updateBound()
                         img.style.left = x + 'px'
                         img.style.top = y + 'px'
                         img.style.width = width * scale + 'px'
@@ -127,7 +128,6 @@
                             lockedState = null
                             x = x + e.movementX
                             y = y + e.movementY
-                            updateBound()
                             updatePosition()
                         }
                     })
@@ -138,8 +138,7 @@
                         }
                     })
                     window.addEventListener('wheel', (e) => {
-                        let { cwidth, cheight } = getClientSize()
-                        let newScale = scale - e.deltaY / cheight
+                        let newScale = scale - e.deltaY / height
                         if (newScale <= 0.1) newScale = 0.1
                         // 移动位置，使图片仍保持在原处
                         x = x - (width * (newScale - scale)) / 2
@@ -148,7 +147,6 @@
                         updatePosition()
                     })
                     window.addEventListener('resize', () => {
-                        updateBound()
                         updatePosition()
                     })
 
