@@ -1,92 +1,90 @@
 <template>
     <div id="login">
-        <el-scrollbar>
-            <el-form
-                ref="loginForm"
-                :model="form"
-                :rules="rules"
-                :hide-required-asterisk="true"
-                :disabled="disabled"
-                label-position="top"
-                :style="{ padding: '20px' }"
-            >
-                <center>
-                    <h1 :style="{ fontWeight: '300' }">
-                        Icalinguim <span :style="{ fontSize: '10px', fontWeight: '500' }">{{ ver }}</span>
-                    </h1>
-                    <h4 v-if="$route.query.bridge === 'true'">正在配置 Bridge 服务器</h4>
-                </center>
-                <el-form-item prop="username" label="账号">
-                    <el-input type="text" placeholder="用户 ID" v-model.number="form.username" />
-                </el-form-item>
-                <el-form-item prop="password" :style="{ marginBottom: '15px' }">
-                    <el-input type="password" placeholder="密码" v-model="form.password" />
-                </el-form-item>
-                <el-form-item prop="autologin" class="nobottmar">
-                    <span class="el-form-item__label">自动登录</span>
-                    <el-switch v-model="form.autologin" :style="{ marginLeft: '5px' }" />
-                </el-form-item>
-                <el-form-item prop="protocol" label="协议">
-                    <el-radio-group v-model="form.protocol" size="small">
-                        <el-radio-button label="1">Android</el-radio-button>
-                        <el-radio-button label="2">aPad</el-radio-button>
-                        <el-radio-button label="3">Android Watch</el-radio-button>
-                        <el-radio-button label="4">MacOS</el-radio-button>
-                        <el-radio-button label="5">iPad</el-radio-button>
-                    </el-radio-group>
-                </el-form-item>
-                <el-form-item label="储存方式">
-                    <el-select v-model="form.storageType">
-                        <el-option label="SQLite (内置)" value="sqlite"></el-option>
-                        <el-option label="MongoDB" value="mdb"></el-option>
-                        <el-option label="Redis" value="redis"></el-option>
-                        <el-option label="MySQL/MariaDB" value="mysql"></el-option>
-                        <el-option label="PostgreSQL" value="pg"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item label="状态">
-                    <el-select v-model="form.onlineStatus">
-                        <el-option label="在线" :value="11"></el-option>
-                        <el-option label="离开" :value="31"></el-option>
-                        <el-option label="隐身" :value="41"></el-option>
-                        <el-option label="忙碌" :value="50"></el-option>
-                        <el-option label="Q我吧" :value="60"></el-option>
-                        <el-option label="请勿打扰" :value="70"></el-option>
-                    </el-select>
-                </el-form-item>
-                <el-form-item prop="connStr" v-show="form.storageType === 'mdb'">
-                    <el-input
-                        :show-password="form.mdbConnStr && form.mdbConnStr.split(':').length > 2"
-                        placeholder="MongoDB connect string"
-                        v-model="form.mdbConnStr"
-                    />
-                </el-form-item>
-                <el-form-item prop="rdsHost" v-show="form.storageType === 'redis'">
-                    <el-input placeholder="Redis Host" v-model="form.rdsHost" />
-                </el-form-item>
-                <el-form-item prop="sqlHost" v-show="form.storageType === 'mysql' || form.storageType === 'pg'">
-                    <el-input placeholder="Host" v-model="form.sqlHost" />
-                </el-form-item>
-                <el-form-item prop="sqlUsername" v-show="form.storageType === 'mysql' || form.storageType === 'pg'">
-                    <el-input placeholder="username" v-model="form.sqlUsername" />
-                </el-form-item>
-                <el-form-item prop="sqlPassword" v-show="form.storageType === 'mysql' || form.storageType === 'pg'">
-                    <el-input placeholder="password" type="password" v-model="form.sqlPassword" />
-                </el-form-item>
-                <el-form-item prop="sqlDatabase" v-show="form.storageType === 'mysql' || form.storageType === 'pg'">
-                    <el-input placeholder="database" v-model="form.sqlDatabase" />
-                </el-form-item>
-                <p class="red">
-                    {{ errmsg }}
-                </p>
-                <el-form-item align="center">
-                    <el-button type="primary" v-on:click="onSubmit('loginForm')">
-                        <span v-show="!form.password && $route.query.bridge !== 'true'">扫码</span>登录
-                    </el-button>
-                    <el-button type="warning" v-if="errmsg !== ''" v-on:click="cannotLogin"> 无法登录? </el-button>
-                </el-form-item>
-            </el-form>
-        </el-scrollbar>
+        <el-form
+            ref="loginForm"
+            :model="form"
+            :rules="rules"
+            :hide-required-asterisk="true"
+            :disabled="disabled"
+            label-position="top"
+            :style="{ padding: '20px' }"
+        >
+            <center>
+                <h1 :style="{ fontWeight: '300' }">
+                    Icalinguim <span :style="{ fontSize: '10px', fontWeight: '500' }">{{ ver }}</span>
+                </h1>
+                <h4 v-if="$route.query.bridge === 'true'">正在配置 Bridge 服务器</h4>
+            </center>
+            <el-form-item prop="username" label="账号">
+                <el-input type="text" placeholder="用户 ID" v-model.number="form.username" />
+            </el-form-item>
+            <el-form-item prop="password" :style="{ marginBottom: '15px' }">
+                <el-input type="password" placeholder="密码" v-model="form.password" />
+            </el-form-item>
+            <el-form-item prop="autologin" class="nobottmar">
+                <span class="el-form-item__label">自动登录</span>
+                <el-switch v-model="form.autologin" :style="{ marginLeft: '5px' }" />
+            </el-form-item>
+            <el-form-item prop="protocol" label="协议">
+                <el-radio-group v-model="form.protocol" size="small">
+                    <el-radio-button label="1">Android</el-radio-button>
+                    <el-radio-button label="2">aPad</el-radio-button>
+                    <el-radio-button label="3">Android Watch</el-radio-button>
+                    <el-radio-button label="4">MacOS</el-radio-button>
+                    <el-radio-button label="5">iPad</el-radio-button>
+                </el-radio-group>
+            </el-form-item>
+            <el-form-item label="储存方式">
+                <el-select v-model="form.storageType">
+                    <el-option label="SQLite (内置)" value="sqlite"></el-option>
+                    <el-option label="MongoDB" value="mdb"></el-option>
+                    <el-option label="Redis" value="redis"></el-option>
+                    <el-option label="MySQL/MariaDB" value="mysql"></el-option>
+                    <el-option label="PostgreSQL" value="pg"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="状态">
+                <el-select v-model="form.onlineStatus">
+                    <el-option label="在线" :value="11"></el-option>
+                    <el-option label="离开" :value="31"></el-option>
+                    <el-option label="隐身" :value="41"></el-option>
+                    <el-option label="忙碌" :value="50"></el-option>
+                    <el-option label="Q我吧" :value="60"></el-option>
+                    <el-option label="请勿打扰" :value="70"></el-option>
+                </el-select>
+            </el-form-item>
+            <el-form-item prop="connStr" v-show="form.storageType === 'mdb'">
+                <el-input
+                    :show-password="form.mdbConnStr && form.mdbConnStr.split(':').length > 2"
+                    placeholder="MongoDB connect string"
+                    v-model="form.mdbConnStr"
+                />
+            </el-form-item>
+            <el-form-item prop="rdsHost" v-show="form.storageType === 'redis'">
+                <el-input placeholder="Redis Host" v-model="form.rdsHost" />
+            </el-form-item>
+            <el-form-item prop="sqlHost" v-show="form.storageType === 'mysql' || form.storageType === 'pg'">
+                <el-input placeholder="Host" v-model="form.sqlHost" />
+            </el-form-item>
+            <el-form-item prop="sqlUsername" v-show="form.storageType === 'mysql' || form.storageType === 'pg'">
+                <el-input placeholder="username" v-model="form.sqlUsername" />
+            </el-form-item>
+            <el-form-item prop="sqlPassword" v-show="form.storageType === 'mysql' || form.storageType === 'pg'">
+                <el-input placeholder="password" type="password" v-model="form.sqlPassword" />
+            </el-form-item>
+            <el-form-item prop="sqlDatabase" v-show="form.storageType === 'mysql' || form.storageType === 'pg'">
+                <el-input placeholder="database" v-model="form.sqlDatabase" />
+            </el-form-item>
+            <p class="red">
+                {{ errmsg }}
+            </p>
+            <el-form-item align="center">
+                <el-button type="primary" v-on:click="onSubmit('loginForm')">
+                    <span v-show="!form.password && $route.query.bridge !== 'true'">扫码</span>登录
+                </el-button>
+                <el-button type="warning" v-if="errmsg !== ''" v-on:click="cannotLogin"> 无法登录? </el-button>
+            </el-form-item>
+        </el-form>
 
         <QrcodeDrawer @login="onSubmit('loginForm')" />
         <el-drawer
@@ -217,7 +215,7 @@ export default {
     right: 0;
     top: 0;
     bottom: 0;
-    height: 100%;
+    overflow: auto;
 }
 
 .red {

@@ -28,7 +28,7 @@
             </template>
         </room-header>
 
-        <el-scrollbar ref="scrollContainer" class="vac-container-scroll">
+        <div ref="scrollContainer" class="vac-container-scroll" @scroll="containerScroll">
             <loader :show="loadingMessages" />
             <div class="vac-messages-container">
                 <div :class="{ 'vac-messages-hidden': loadingMessages }">
@@ -142,7 +142,7 @@
                     </transition>
                 </div>
             </div>
-        </el-scrollbar>
+        </div>
         <div v-if="!loadingMessages">
             <transition name="vac-bounce">
                 <div v-if="lastUnreadCount >= 10" class="vac-icon-last-message" @click="scrollToLastMessage">
@@ -289,8 +289,8 @@
                         @nomatch="nomatchQuickAt"
                     >
                         <el-avatar size="small" v-if="id !== 0" :src="`https://q1.qlogo.cn/g?b=qq&nk=${id}&s=40`" />
-                        <p style="wordwrap: 'break-word'; margin-right: auto; margin-left: 5px">{{ name }}</p>
-                        <p v-if="id !== 0" style="fontfamily: 'Consolas', 'monospace'">{{ id }}</p>
+                        <p :style="{ wordWrap: 'break-word', marginRight: 'auto', marginLeft: '5px' }">{{ name }}</p>
+                        <p v-if="id !== 0" :style="{ fontFamily: 'Consolas, monospace' }">{{ id }}</p>
                     </SearchInput>
                 </transition>
 
@@ -548,7 +548,7 @@ export default {
             }
         },
         messages(newVal, oldVal) {
-            const element = this.$refs.scrollContainer.wrap
+            const element = this.$refs.scrollContainer
             if (!element) return
 
             const offset = (newVal ? newVal.length : 0) - (oldVal ? oldVal.length : 0)
@@ -729,8 +729,6 @@ export default {
                 this.onFileChange(event.dataTransfer.files)
             }
         })
-
-        this.$refs.scrollContainer.addEventListener('scroll', this.containerScroll)
     },
     async created() {
         this.optimizeMethod = await ipc.getOptimizeMethodSetting()
@@ -1098,7 +1096,7 @@ export default {
             return scrollHeight - clientHeight - scrollTop
         },
         scrollToBottom() {
-            const element = this.$refs.scrollContainer.wrap
+            const element = this.$refs.scrollContainer
             if (this.optimizeMethod !== 'none') {
                 this.visibleViewport.tail = this.messages.length
                 this.visibleViewport.head = Math.max(this.messages.length - this.maxViewportLength, 0)

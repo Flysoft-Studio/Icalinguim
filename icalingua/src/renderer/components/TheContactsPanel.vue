@@ -8,31 +8,17 @@
         </div>
 
         <div class="contacts-content" :style="{ height: '100%' }">
-            <el-scrollbar>
-                <el-tabs v-model="activeName" :stretch="true">
-                    <el-tab-pane label="好友" name="friends">
-                        <el-collapse v-model="activeFriendGroup">
-                            <el-collapse-item
-                                v-for="(v, i) in friendsAll"
-                                :title="
-                                    `${v.name} ` + `(${v.friends.filter((e) => e.sc.includes(searchContext)).length})`
-                                "
-                                :name="i"
-                                :key="i"
-                            >
-                                <ContactEntry
-                                    v-for="i in v.friends"
-                                    :key="i.uin"
-                                    :id="i.uin"
-                                    :remark="i.remark"
-                                    :name="i.nick"
-                                    v-show="i.sc.includes(searchContext)"
-                                    @click="$emit('click', i.uin, i.remark)"
-                                    @dblclick="$emit('dblclick', i.uin, i.remark)"
-                                />
-                            </el-collapse-item>
+            <el-tabs v-model="activeName" :stretch="true">
+                <el-tab-pane label="好友" name="friends">
+                    <el-collapse v-model="activeFriendGroup">
+                        <el-collapse-item
+                            v-for="(v, i) in friendsAll"
+                            :title="`${v.name} ` + `(${v.friends.filter((e) => e.sc.includes(searchContext)).length})`"
+                            :name="i"
+                            :key="i"
+                        >
                             <ContactEntry
-                                v-for="i in friendsFallback"
+                                v-for="i in v.friends"
                                 :key="i.uin"
                                 :id="i.uin"
                                 :remark="i.remark"
@@ -41,22 +27,32 @@
                                 @click="$emit('click', i.uin, i.remark)"
                                 @dblclick="$emit('dblclick', i.uin, i.remark)"
                             />
-                        </el-collapse>
-                    </el-tab-pane>
-                    <el-tab-pane label="群聊" name="groups">
+                        </el-collapse-item>
                         <ContactEntry
-                            v-for="i in groupsAll"
-                            :key="i.group_id"
-                            :id="-i.group_id"
-                            :remark="i.group_name"
-                            :group="i"
-                            v-show="i.sc.includes(searchContext) || PinyinMatch(i.sc, searchContext)"
-                            @click="$emit('click', -i.group_id, i.group_name)"
-                            @dblclick="$emit('dblclick', -i.group_id, i.group_name)"
+                            v-for="i in friendsFallback"
+                            :key="i.uin"
+                            :id="i.uin"
+                            :remark="i.remark"
+                            :name="i.nick"
+                            v-show="i.sc.includes(searchContext)"
+                            @click="$emit('click', i.uin, i.remark)"
+                            @dblclick="$emit('dblclick', i.uin, i.remark)"
                         />
-                    </el-tab-pane>
-                </el-tabs>
-            </el-scrollbar>
+                    </el-collapse>
+                </el-tab-pane>
+                <el-tab-pane label="群聊" name="groups">
+                    <ContactEntry
+                        v-for="i in groupsAll"
+                        :key="i.group_id"
+                        :id="-i.group_id"
+                        :remark="i.group_name"
+                        :group="i"
+                        v-show="i.sc.includes(searchContext) || PinyinMatch(i.sc, searchContext)"
+                        @click="$emit('click', -i.group_id, i.group_name)"
+                        @dblclick="$emit('dblclick', -i.group_id, i.group_name)"
+                    />
+                </el-tab-pane>
+            </el-tabs>
         </div>
     </div>
 </template>
