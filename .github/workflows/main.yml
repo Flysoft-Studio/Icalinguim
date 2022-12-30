@@ -24,11 +24,13 @@ jobs:
       - name: Install pnpm
         run: corepack enable
 
-      - name: Cache pnpm and node-modules
-        uses: Icalinguaplusplus/node-pm-action@master
-        with:
-          node-modules: ./node_modules
-          package-manager: pnpm
+      # fucking cache makes Webpack broken
+      #
+      # - name: Cache pnpm and node-modules
+      #   uses: Icalinguaplusplus/node-pm-action@master
+      #   with:
+      #     node-modules: ./node_modules
+      #     package-manager: pnpm
 
       - name: Install deps
         run: pnpm install
@@ -83,11 +85,13 @@ jobs:
       - name: Install pnpm
         run: corepack enable
 
-      - name: Cache pnpm and node-modules
-        uses: Icalinguaplusplus/node-pm-action@master
-        with:
-          node-modules: ./node_modules
-          package-manager: pnpm
+      # fucking cache makes Webpack broken
+      #
+      # - name: Cache pnpm and node-modules
+      #   uses: Icalinguaplusplus/node-pm-action@master
+      #   with:
+      #     node-modules: ./node_modules
+      #     package-manager: pnpm
 
       - name: Install deps
         run: pnpm install
