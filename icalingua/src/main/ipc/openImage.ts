@@ -12,7 +12,7 @@ import { toInteger } from 'lodash'
 import { getConfig } from '../utils/configManager'
 
 let viewer = ''
-const VIEWERS = ['gwenview', 'eog', 'eom', 'ristretto', 'okular', 'gimp']
+const VIEWERS = ['gwenview', 'eog', 'eom', 'ristretto', 'okular', 'gimp', 'xdg-open']
 
 try {
     const xdgDefault = execFileSync('xdg-mime', ['query', 'default', 'image/jpeg']).toString()
