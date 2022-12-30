@@ -9,6 +9,7 @@ import md5 from 'md5'
 import { newIcalinguaWindow } from '../../utils/IcalinguaWindow'
 import { getMainWindowScreen } from '../utils/windowManager'
 import { toInteger } from 'lodash'
+import { getConfig } from '../utils/configManager'
 
 let viewer = ''
 const VIEWERS = ['gwenview', 'eog', 'eom', 'ristretto', 'okular', 'gimp']
@@ -64,7 +65,13 @@ const openImage = (url: string, external: boolean = false, urlList: Array<string
                 })
             }
             viewerWindow.loadURL(
-                'file://' + path.join(getStaticPath(), 'imgView.html') + '?' + querystring.stringify({ url }),
+                'file://' +
+                    path.join(
+                        getStaticPath(),
+                        getConfig().useExperimentalImgViewer ? 'imgView.html' : 'imgView_.html',
+                    ) +
+                    '?' +
+                    querystring.stringify({ url }),
             )
             //viewerWindow.maximize()
             if (urlList.length > 0) {

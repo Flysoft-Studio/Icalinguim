@@ -1,11 +1,14 @@
-import { BrowserWindow, screen, shell } from 'electron'
+import { BrowserWindow, screen } from 'electron'
 import getStaticPath from './getStaticPath'
 import path from 'path'
 import { getCookies } from '../main/ipc/botAndStorage'
 import { download } from '../main/ipc/downloadManager'
+import { getConfig } from '../main/utils/configManager'
 
 export function newIcalinguaWindow(options?: Electron.BrowserWindowConstructorOptions): BrowserWindow {
     const win = new BrowserWindow(options)
+    // 解决 autoHideMenuBar 以后菜单还能通过 Alt 打开的 fucking shit 问题（保留在开发者模式下的访问）
+    if (options.autoHideMenuBar && !getConfig().debugmode) win.setMenu(null)
     if (
         options &&
         options.webPreferences &&

@@ -1017,6 +1017,15 @@ export const updateAppMenu = async () => {
                         ],
                     },
                     {
+                        label: '启用实验性图片查看器',
+                        type: 'checkbox',
+                        checked: getConfig().useExperimentalImgViewer === true,
+                        click: (menuItem) => {
+                            getConfig().useExperimentalImgViewer = menuItem.checked
+                            saveConfigFile()
+                        },
+                    },
+                    {
                         label: '启用插件',
                         type: 'checkbox',
                         checked: getConfig().custom === true,
