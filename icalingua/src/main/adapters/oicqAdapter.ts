@@ -1825,7 +1825,7 @@ const adapter: OicqAdapter = {
                         if (await storage.isChatIgnored(message.senderId)) message.hide = true
                         messages.push(message)
                         newMsgs.push(message)
-                        console.log(retData)
+                        // console.log(retData)
                         if (first_loop) {
                             lastMessage = Object.assign(Object.assign({}, retData.message), retData.lastMessage, {
                                 username: getUin() == retData.message.senderId ? 'You' : retData.message.username,
