@@ -72,7 +72,14 @@ import processMessage from '../utils/processMessage'
 import { createTray, updateTrayIcon } from '../utils/trayManager'
 import ui from '../utils/ui'
 import { checkUpdate, getCachedUpdate } from '../utils/updateChecker'
-import { getMainWindow, loadMainWindow, sendToLoginWindow, showRequestWindow, showWindow } from '../utils/windowManager'
+import {
+    getMainWindow,
+    loadMainWindow,
+    sendToLoginWindow,
+    showLoginWindow,
+    showRequestWindow,
+    showWindow,
+} from '../utils/windowManager'
 import ChatGroup from '@icalingua/types/ChatGroup'
 
 let bot: Client
@@ -830,6 +837,7 @@ const loginHandlers = {
     },
     onErr(data) {
         console.log(data)
+        showLoginWindow()
         sendToLoginWindow('error', data.message)
         loginError = true
     },
@@ -857,8 +865,24 @@ const loginHandlers = {
         ui.message('正在获取历史消息')
         {
             const rooms = await storage.getAllRooms()
+            // 先私聊后群聊
             for (const i of rooms) {
                 if (new Date().getTime() - i.utime > 1000 * 60 * 60 * 24 * 2) break
+                if (i.roomId < 0) continue
+                const roomId = i.roomId
+                let buffer: Buffer
+                let uid = roomId
+                if (roomId < 0) {
+                    buffer = Buffer.alloc(21)
+                    uid = -uid
+                } else buffer = Buffer.alloc(17)
+                buffer.writeUInt32BE(uid, 0)
+                adapter.fetchHistory(buffer.toString('base64'), roomId)
+                await sleep(500)
+            }
+            for (const i of rooms) {
+                if (new Date().getTime() - i.utime > 1000 * 60 * 60 * 24 * 2) break
+                if (i.roomId > 0) continue
                 const roomId = i.roomId
                 let buffer: Buffer
                 let uid = roomId
@@ -875,6 +899,7 @@ const loginHandlers = {
     },
     verify(data: DeviceEventData) {
         console.log(data)
+        showLoginWindow()
         sendToLoginWindow('smsCodeVerify', JSON.stringify(data))
     },
     qrcode(data: QrcodeEventData) {
@@ -1853,6 +1878,30 @@ const adapter: OicqAdapter = {
                     break
                 }
                 if (limit && messages.length > limit) break
+            }
+            // 私聊消息去重
+            let messagesLength = messages.length
+            if (roomId > 0) {
+                for (let i = 0; i < messagesLength; i++) {
+                    if (messages[i].senderId != bot.uin) continue
+                    try {
+                        let messageIdBuf = Buffer.from(messages[i]._id as string, 'base64')
+                        if (messageIdBuf.length != 17) continue
+                        let timestamp = messageIdBuf.readUInt32BE(12)
+                        const timeDiff = [0, -1, 1]
+                        for (let j of timeDiff) {
+                            messageIdBuf.writeUInt32BE(timestamp + j, 12)
+                            if (await storage.getMessage(roomId, messageIdBuf.toString('base64'))) {
+                                messages.splice(i, 1)
+                                messagesLength--
+                                i--
+                                break
+                            }
+                        }
+                    } catch (e) {
+                        errorHandler(e, true)
+                    }
+                }
             }
             return { messages, done }
         }

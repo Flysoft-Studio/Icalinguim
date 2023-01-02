@@ -52,8 +52,22 @@
                     :src="'file://' + facepath + preZeroFill(Number(message.value), 3)"
                     :alt="message.value"
                 />
-                <a v-if="message.forward" style="cursor: pointer" @click="openForward(message)"> 查看转发的消息记录 </a>
-                <a v-if="message.nestedforward" style="cursor: pointer" @click="openNested(message)">
+                <a
+                    v-if="message.forward"
+                    style="cursor: pointer"
+                    :key="i"
+                    :title="parseForwardPreview(code)"
+                    @click="openForward(message)"
+                >
+                    查看转发的消息记录
+                </a>
+                <a
+                    v-if="message.nestedforward"
+                    style="cursor: pointer"
+                    :key="i"
+                    :title="parseForwardPreview(code)"
+                    @click="openNested(message)"
+                >
                     查看转发的消息记录
                 </a>
             </template>
@@ -85,6 +99,7 @@ export default {
         textFormatting: { type: Boolean, required: true },
         showForwardPanel: { type: Boolean, required: true },
         forwardResId: { type: String, required: false },
+        code: { type: String, required: false },
     },
 
     data() {
@@ -178,6 +193,14 @@ export default {
                 var _str = Array(size + 1).join('0') + num
                 return _str.slice(_str.length - size)
             }
+        },
+        parseForwardPreview(code) {
+            let preview = ''
+            const parser = new DOMParser()
+            const xmlDoc = parser.parseFromString(code, 'text/xml')
+            const titles = xmlDoc.getElementsByTagName('title')
+            for (let i of titles) preview += i.textContent + '\n'
+            return preview
         },
     },
 }
