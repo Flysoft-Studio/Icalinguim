@@ -106,507 +106,462 @@ const setClearRoomsBehavior = (behavior: 'AllUnpined' | '1WeekAgo' | '1DayAgo' |
 const buildRoomMenu = (room: Room): Menu => {
     const pinTitle = room.index ? '解除置顶' : '置顶'
     const updateRoomPriority = (lev: 1 | 2 | 3 | 4 | 5) => setRoomPriority(room.roomId, lev)
-    const menu = Menu.buildFromTemplate([
-        {
-            label: '优先级',
-            submenu: [
-                {
-                    type: 'radio',
-                    label: '1',
-                    checked: room.priority === 1,
-                    click: () => updateRoomPriority(1),
-                },
-                {
-                    type: 'radio',
-                    label: '2',
-                    checked: room.priority === 2,
-                    click: () => updateRoomPriority(2),
-                },
-                {
-                    type: 'radio',
-                    label: '3',
-                    checked: room.priority === 3,
-                    click: () => updateRoomPriority(3),
-                },
-                {
-                    type: 'radio',
-                    label: '4',
-                    checked: room.priority === 4,
-                    click: () => updateRoomPriority(4),
-                },
-                {
-                    type: 'radio',
-                    label: '5',
-                    checked: room.priority === 5,
-                    click: () => updateRoomPriority(5),
-                },
-            ],
-        },
-        {
-            label: pinTitle,
-            click: () => pinRoom(room.roomId, !room.index),
-        },
-        {
-            label: '删除会话',
-            click: () => removeChat(room.roomId),
-        },
-        {
-            label: '屏蔽消息',
-            click: () => ui.confirmIgnoreChat({ id: room.roomId, name: room.roomName }),
-        },
-        {
-            label: '复制名称',
-            click: () => {
-                clipboard.writeText(room.roomName)
-            },
-        },
-        {
-            label: '复制 ID',
-            click: () => {
-                clipboard.writeText(String(Math.abs(room.roomId)))
-            },
-        },
-        {
-            label: '查看头像',
-            click: () => {
-                openImage(getAvatarUrl(room.roomId).replace('&s=140', '&s=0'), false)
-            },
-        },
-        {
-            label: '下载头像',
-            click: () => {
-                downloadImage(getAvatarUrl(room.roomId).replace('&s=140', '&s=0'))
-            },
-        },
-        {
-            label: '自动下载',
-            submenu: [
-                {
-                    type: 'checkbox',
-                    label: '聊天文件',
-                    checked: !!room.autoDownload,
-                    click: (menuItem) => setRoomAutoDownload(room.roomId, menuItem.checked),
-                },
-                {
-                    label: '设置下载路径',
-                    click: () => {
-                        const selection = dialog.showOpenDialogSync(getMainWindow(), {
-                            title: '设置下载路径',
-                            properties: ['openDirectory'],
-                            defaultPath: room.downloadPath,
-                        })
-                        console.log(selection)
-                        if (selection && selection.length) {
-                            setRoomAutoDownloadPath(room.roomId, selection[0])
-                        }
+    const menu = Menu.buildFromTemplate(
+        [
+            {
+                label: '优先级',
+                submenu: [
+                    {
+                        type: 'radio',
+                        label: '1',
+                        checked: room.priority === 1,
+                        click: () => updateRoomPriority(1),
                     },
+                    {
+                        type: 'radio',
+                        label: '2',
+                        checked: room.priority === 2,
+                        click: () => updateRoomPriority(2),
+                    },
+                    {
+                        type: 'radio',
+                        label: '3',
+                        checked: room.priority === 3,
+                        click: () => updateRoomPriority(3),
+                    },
+                    {
+                        type: 'radio',
+                        label: '4',
+                        checked: room.priority === 4,
+                        click: () => updateRoomPriority(4),
+                    },
+                    {
+                        type: 'radio',
+                        label: '5',
+                        checked: room.priority === 5,
+                        click: () => updateRoomPriority(5),
+                    },
+                ],
+            },
+            {
+                type: 'separator',
+            },
+            {
+                label: pinTitle,
+                click: () => pinRoom(room.roomId, !room.index),
+            },
+            {
+                label: '删除会话',
+                click: () => removeChat(room.roomId),
+            },
+            {
+                label: '屏蔽消息',
+                click: () => ui.confirmIgnoreChat({ id: room.roomId, name: room.roomName }),
+            },
+            {
+                type: 'separator',
+            },
+            {
+                label: '复制名称',
+                click: () => {
+                    clipboard.writeText(room.roomName)
                 },
-            ],
-        },
-    ])
-    const webApps = new Menu()
-    if (room.roomId < 0) {
-        webApps.append(
-            new MenuItem({
-                label: '查看精华消息',
-                async click() {
-                    const size = screen.getPrimaryDisplay().size
-                    const win = newIcalinguaWindow({
-                        height: size.height - 200,
-                        width: 500,
-                        autoHideMenuBar: true,
-                        webPreferences: {
-                            preload: path.join(getStaticPath(), 'essenceInj.js'),
-                            contextIsolation: false,
-                        },
-                    })
-                    const cookies = await getCookies('qun.qq.com')
-                    for (const i in cookies) {
-                        await win.webContents.session.cookies.set({
-                            url: 'https://qun.qq.com',
-                            domain: '.qun.qq.com',
-                            name: i,
-                            value: cookies[i],
-                        })
-                    }
-                    await win.loadURL('https://qun.qq.com/essence/index?gc=' + -room.roomId)
+            },
+            {
+                label: '复制 ID',
+                click: () => {
+                    clipboard.writeText(String(Math.abs(room.roomId)))
                 },
-            }),
-        )
-        webApps.append(
-            new MenuItem({
-                label: '群公告',
-                async click() {
-                    const size = screen.getPrimaryDisplay().size
-                    const win = newIcalinguaWindow({
-                        height: size.height - 200,
-                        width: 500,
-                        autoHideMenuBar: true,
-                        title: '群公告',
-                    })
-                    const cookies = await getCookies('qun.qq.com')
-                    for (const i in cookies) {
-                        await win.webContents.session.cookies.set({
-                            url: 'https://web.qun.qq.com',
-                            domain: '.qun.qq.com',
-                            name: i,
-                            value: cookies[i],
-                        })
-                    }
-                    await win.loadURL('https://web.qun.qq.com/mannounce/index.html#gc=' + -room.roomId)
+            },
+            {
+                label: '查看头像',
+                click: () => {
+                    openImage(getAvatarUrl(room.roomId).replace('&s=140', '&s=0'), false)
                 },
-            }),
-        )
-        webApps.append(
-            new MenuItem({
-                label: '群文件',
-                async click() {
-                    let url
-                    if (getConfig().adapter === 'socketIo') {
-                        const token = await requestGfsToken(-room.roomId)
-                        url = `${getConfig().server}/file-manager/?${token}`
-                    } else {
-                        const token = gfsTokenManager.create(-room.roomId)
-                        url = `http://localhost:${socketIoProvider.getPort()}/file-manager/?${token}`
-                    }
-                    const size = screen.getPrimaryDisplay().size
-                    const win = newIcalinguaWindow({
-                        autoHideMenuBar: true,
-                        height: size.height - 200,
-                        width: 1500,
-                        webPreferences: {
-                            // 修复循环触发下载的问题
-                            partition: 'file-manager',
-                            preload: path.join(getStaticPath(), 'fileManagerPreload.js'),
-                            contextIsolation: false,
-                        },
-                    })
-                    win.webContents.session.on('will-download', (e, item) => {
-                        item.cancel()
-                        download(item.getURL(), item.getFilename())
-                    })
-                    win.loadURL(url)
-                    win.webContents.executeJavaScript('window.isAdmin = "' + (await isAdmin(room.roomId)) + '"')
-                },
-            }),
-        )
-        webApps.append(
-            new MenuItem({
-                label: '群荣誉',
-                async click() {
-                    const size = screen.getPrimaryDisplay().size
-                    const win = newIcalinguaWindow({
-                        height: size.height - 200,
-                        width: 800,
-                        autoHideMenuBar: true,
-                    })
-                    const cookies = await getCookies('qun.qq.com')
-                    for (const i in cookies) {
-                        await win.webContents.session.cookies.set({
-                            url: 'https://qun.qq.com',
-                            domain: '.qun.qq.com',
-                            name: i,
-                            value: cookies[i],
-                        })
-                    }
-                    await win.loadURL('https://qun.qq.com/interactive/qunhonor?gc=' + -room.roomId)
-                },
-            }),
-        )
-        webApps.append(
-            new MenuItem({
-                label: '群相册',
-                async click() {
-                    const size = screen.getPrimaryDisplay().size
-                    const win = newIcalinguaWindow({
-                        height: size.height - 200,
-                        width: 800,
-                        autoHideMenuBar: true,
-                    })
-                    const cookies = await getCookies('qzone.qq.com')
-                    for (const i in cookies) {
-                        await win.webContents.session.cookies.set({
-                            url: 'https://h5.qzone.qq.com',
-                            name: i,
-                            value: cookies[i],
-                        })
-                    }
-                    win.webContents.setWindowOpenHandler((details) => {
-                        console.log(details.url)
-                        const parsedUrl = new URL(details.url)
-                        if (parsedUrl.hostname === 'qungz.photo.store.qq.com') openImage(details.url)
-                        else if (parsedUrl.hostname === 'download.photo.qq.com')
-                            download(
-                                details.url,
-                                `${room.roomName}(${-room.roomId})的群相册${new Date().getTime()}.zip`,
-                            )
-                        return { action: 'deny' }
-                    })
-                    await win.loadURL('https://h5.qzone.qq.com/groupphoto/album?inqq=1&groupId=' + -room.roomId)
-                },
-            }),
-        )
-        webApps.append(
-            new MenuItem({
-                label: '群作业',
-                async click() {
-                    const size = screen.getPrimaryDisplay().size
-                    const win = newIcalinguaWindow({
-                        height: size.height - 200,
-                        width: 500,
-                        autoHideMenuBar: true,
-                        title: '群作业',
-                        webPreferences: {
-                            contextIsolation: false,
-                            preload: path.join(getStaticPath(), 'homeworkPreload.js'),
-                        },
-                    })
-                    const cookies = await getCookies('qun.qq.com')
-                    for (const i in cookies) {
-                        await win.webContents.session.cookies.set({
-                            url: 'https://qun.qq.com',
-                            domain: '.qun.qq.com',
-                            name: i,
-                            value: cookies[i],
-                        })
-                    }
+            },
+            {
+                type: 'separator',
+            },
+            room.roomId < 0
+                ? {
+                      label: '群应用',
+                      submenu: [
+                          {
+                              label: '查看精华消息',
+                              async click() {
+                                  const size = screen.getPrimaryDisplay().size
+                                  const win = newIcalinguaWindow({
+                                      height: size.height - 200,
+                                      width: 500,
+                                      autoHideMenuBar: true,
+                                      webPreferences: {
+                                          preload: path.join(getStaticPath(), 'essenceInj.js'),
+                                          contextIsolation: false,
+                                      },
+                                  })
+                                  const cookies = await getCookies('qun.qq.com')
+                                  for (const i in cookies) {
+                                      await win.webContents.session.cookies.set({
+                                          url: 'https://qun.qq.com',
+                                          domain: '.qun.qq.com',
+                                          name: i,
+                                          value: cookies[i],
+                                      })
+                                  }
+                                  await win.loadURL('https://qun.qq.com/essence/index?gc=' + -room.roomId)
+                              },
+                          },
+                          {
+                              label: '群公告',
+                              async click() {
+                                  const size = screen.getPrimaryDisplay().size
+                                  const win = newIcalinguaWindow({
+                                      height: size.height - 200,
+                                      width: 500,
+                                      autoHideMenuBar: true,
+                                      title: '群公告',
+                                  })
+                                  const cookies = await getCookies('qun.qq.com')
+                                  for (const i in cookies) {
+                                      await win.webContents.session.cookies.set({
+                                          url: 'https://web.qun.qq.com',
+                                          domain: '.qun.qq.com',
+                                          name: i,
+                                          value: cookies[i],
+                                      })
+                                  }
+                                  await win.loadURL('https://web.qun.qq.com/mannounce/index.html#gc=' + -room.roomId)
+                              },
+                          },
+                          {
+                              label: '群文件',
+                              async click() {
+                                  let url
+                                  if (getConfig().adapter === 'socketIo') {
+                                      const token = await requestGfsToken(-room.roomId)
+                                      url = `${getConfig().server}/file-manager/?${token}`
+                                  } else {
+                                      const token = gfsTokenManager.create(-room.roomId)
+                                      url = `http://localhost:${socketIoProvider.getPort()}/file-manager/?${token}`
+                                  }
+                                  const size = screen.getPrimaryDisplay().size
+                                  const win = newIcalinguaWindow({
+                                      autoHideMenuBar: true,
+                                      height: size.height - 200,
+                                      width: 1500,
+                                      webPreferences: {
+                                          // 修复循环触发下载的问题
+                                          partition: 'file-manager',
+                                          preload: path.join(getStaticPath(), 'fileManagerPreload.js'),
+                                          contextIsolation: false,
+                                      },
+                                  })
+                                  win.webContents.session.on('will-download', (e, item) => {
+                                      item.cancel()
+                                      download(item.getURL(), item.getFilename())
+                                  })
+                                  win.loadURL(url)
+                                  win.webContents.executeJavaScript(
+                                      'window.isAdmin = "' + (await isAdmin(room.roomId)) + '"',
+                                  )
+                              },
+                          },
+                          {
+                              label: '群荣誉',
+                              async click() {
+                                  const size = screen.getPrimaryDisplay().size
+                                  const win = newIcalinguaWindow({
+                                      height: size.height - 200,
+                                      width: 800,
+                                      autoHideMenuBar: true,
+                                  })
+                                  const cookies = await getCookies('qun.qq.com')
+                                  for (const i in cookies) {
+                                      await win.webContents.session.cookies.set({
+                                          url: 'https://qun.qq.com',
+                                          domain: '.qun.qq.com',
+                                          name: i,
+                                          value: cookies[i],
+                                      })
+                                  }
+                                  await win.loadURL('https://qun.qq.com/interactive/qunhonor?gc=' + -room.roomId)
+                              },
+                          },
+                          {
+                              label: '群相册',
+                              async click() {
+                                  const size = screen.getPrimaryDisplay().size
+                                  const win = newIcalinguaWindow({
+                                      height: size.height - 200,
+                                      width: 800,
+                                      autoHideMenuBar: true,
+                                  })
+                                  const cookies = await getCookies('qzone.qq.com')
+                                  for (const i in cookies) {
+                                      await win.webContents.session.cookies.set({
+                                          url: 'https://h5.qzone.qq.com',
+                                          name: i,
+                                          value: cookies[i],
+                                      })
+                                  }
+                                  win.webContents.setWindowOpenHandler((details) => {
+                                      console.log(details.url)
+                                      const parsedUrl = new URL(details.url)
+                                      if (parsedUrl.hostname === 'qungz.photo.store.qq.com') openImage(details.url)
+                                      else if (parsedUrl.hostname === 'download.photo.qq.com')
+                                          download(
+                                              details.url,
+                                              `${room.roomName}(${-room.roomId})的群相册${new Date().getTime()}.zip`,
+                                          )
+                                      return { action: 'deny' }
+                                  })
+                                  await win.loadURL(
+                                      'https://h5.qzone.qq.com/groupphoto/album?inqq=1&groupId=' + -room.roomId,
+                                  )
+                              },
+                          },
+                          {
+                              label: '群作业',
+                              async click() {
+                                  const size = screen.getPrimaryDisplay().size
+                                  const win = newIcalinguaWindow({
+                                      height: size.height - 200,
+                                      width: 500,
+                                      autoHideMenuBar: true,
+                                      title: '群作业',
+                                      webPreferences: {
+                                          contextIsolation: false,
+                                          preload: path.join(getStaticPath(), 'homeworkPreload.js'),
+                                      },
+                                  })
+                                  const cookies = await getCookies('qun.qq.com')
+                                  for (const i in cookies) {
+                                      await win.webContents.session.cookies.set({
+                                          url: 'https://qun.qq.com',
+                                          domain: '.qun.qq.com',
+                                          name: i,
+                                          value: cookies[i],
+                                      })
+                                  }
 
-                    await win.loadURL('https://qun.qq.com/homework/p/features#?gid=' + -room.roomId, {
-                        userAgent: 'QQ/8.9.13.9280',
-                    })
-                },
-            }),
-        )
-        webApps.append(
-            new MenuItem({
-                label: '群幸运字符',
-                async click() {
-                    const size = screen.getPrimaryDisplay().size
-                    const win = newIcalinguaWindow({
-                        height: size.height - 200,
-                        width: 500,
-                        autoHideMenuBar: true,
-                    })
-                    const cookies = await getCookies('qun.qq.com')
-                    for (const i in cookies) {
-                        await win.webContents.session.cookies.set({
-                            url: 'https://qun.qq.com',
-                            domain: '.qun.qq.com',
-                            name: i,
-                            value: cookies[i],
-                        })
-                    }
-                    await win.loadURL('https://qun.qq.com/v2/luckyword/index?qunid=' + -room.roomId)
-                },
-            }),
-        )
-        menu.append(
-            new MenuItem({
-                label: '我的群昵称',
-                async click() {
-                    const memberInfo = await getGroupMemberInfo(-room.roomId, getUin())
-                    const win = newIcalinguaWindow({
-                        height: 190,
-                        width: 600,
-                        autoHideMenuBar: true,
-                        webPreferences: {
-                            contextIsolation: false,
-                            nodeIntegration: true,
-                        },
-                    })
-                    await win.loadURL(
-                        getWinUrl() +
-                            '#/groupNickEdit/' +
-                            -room.roomId +
-                            '/' +
-                            querystring.escape(room.roomName) +
-                            '/' +
-                            querystring.escape(memberInfo.card || memberInfo.nickname),
-                    )
-                },
-            }),
-        )
-        webApps.append(
-            new MenuItem({
-                label: '成员活跃数据',
-                async click() {
-                    const size = screen.getPrimaryDisplay().size
-                    const win = newIcalinguaWindow({
-                        height: size.height - 200,
-                        width: 500,
-                        autoHideMenuBar: true,
-                    })
-                    const cookies = await getCookies('qun.qq.com')
-                    for (const i in cookies) {
-                        await win.webContents.session.cookies.set({
-                            url: 'https://qun.qq.com',
-                            domain: '.qun.qq.com',
-                            name: i,
-                            value: cookies[i],
-                        })
-                    }
-                    await win.loadURL('https://qun.qq.com/m/qun/activedata/active.html?gc=' + -room.roomId)
-                },
-            }),
-        )
-        menu.append(
-            new MenuItem({
-                label: '群成员',
-                async click() {
-                    ui.openGroupMemberPanel(true, -room.roomId)
-                },
-            }),
-        )
-        menu.append(
-            new MenuItem({
-                label: '群成员管理',
-                async click() {
-                    const win = newIcalinguaWindow({
-                        autoHideMenuBar: true,
-                        webPreferences: {
-                            contextIsolation: false,
-                        },
-                    })
-                    win.maximize()
-                    const cookies = await getCookies('qun.qq.com')
-                    for (const i in cookies) {
-                        await win.webContents.session.cookies.set({
-                            url: 'https://qun.qq.com',
-                            domain: '.qun.qq.com',
-                            name: i,
-                            value: cookies[i],
-                        })
-                    }
-                    win.webContents.on('dom-ready', () =>
-                        win.webContents.insertCSS(
-                            '.header,.footer>p:not(:last-child),#changeGroup{display:none} ' +
-                                '.body{padding-top:0 !important;margin:0 !important}',
-                        ),
-                    )
-                    await win.loadURL('https://qun.qq.com/member.html#gid=' + -room.roomId)
-                },
-            }),
-        )
-        menu.append(
-            new MenuItem({
-                label: '导出群成员',
-                click() {
-                    exportGroupMembers(-room.roomId)
-                },
-            }),
-        )
-    } else {
-        // menu.append(new MenuItem({
-        //     label: 'ta 的线索',
-        //     async click() {
-        //         const size = screen.getPrimaryDisplay().size
-        //         const win = newIcalinguaWindow({
-        //             height: size.height - 200,
-        //             width: 500,
-        //             autoHideMenuBar: true,
-        //         })
-        //         const cookies = await getCookies('ti.qq.com')
-        //         for (const i in cookies) {
-        //             await win.webContents.session.cookies.set({
-        //                 url: 'https://ti.qq.com',
-        //                 name: i,
-        //                 value: cookies[i],
-        //             })
-        //         }
-        //         await win.loadURL('https://ti.qq.com/friends/recall?uin=' + room.roomId)
-        //     },
-        // }))
-        webApps.append(
-            new MenuItem({
-                label: '互动标识',
-                async click() {
-                    const size = screen.getPrimaryDisplay().size
-                    const win = newIcalinguaWindow({
-                        height: size.height - 200,
-                        width: 500,
-                        autoHideMenuBar: true,
-                    })
-                    const cookies = await getCookies('ti.qq.com')
-                    for (const i in cookies) {
-                        await win.webContents.session.cookies.set({
-                            url: 'https://ti.qq.com',
-                            name: i,
-                            value: cookies[i],
-                        })
-                    }
-                    await win.loadURL('https://ti.qq.com/hybrid-h5/interactive_logo/inter?target_uin=' + room.roomId)
-                },
-            }),
-        )
-        webApps.append(
-            new MenuItem({
-                label: '幸运字符',
-                async click() {
-                    const size = screen.getPrimaryDisplay().size
-                    const win = newIcalinguaWindow({
-                        height: size.height - 200,
-                        width: 500,
-                        autoHideMenuBar: true,
-                    })
-                    const cookies = await getCookies('ti.qq.com')
-                    for (const i in cookies) {
-                        await win.webContents.session.cookies.set({
-                            url: 'https://ti.qq.com',
-                            name: i,
-                            value: cookies[i],
-                        })
-                    }
-                    await win.loadURL('https://ti.qq.com/interactive_logo/word?target_uin=' + room.roomId)
-                },
-            }),
-        )
-        webApps.append(
-            new MenuItem({
-                label: '照片墙',
-                async click() {
-                    const size = screen.getPrimaryDisplay().size
-                    const win = newIcalinguaWindow({
-                        height: size.height - 200,
-                        width: 500,
-                        autoHideMenuBar: true,
-                        webPreferences: {
-                            preload: path.join(getStaticPath(), 'photoWallPreload.js'),
-                            contextIsolation: false,
-                        },
-                    })
-                    const cookies = await getCookies('ti.qq.com')
-                    for (const i in cookies) {
-                        await win.webContents.session.cookies.set({
-                            url: 'https://ti.qq.com',
-                            name: i,
-                            value: cookies[i],
-                        })
-                    }
-                    await win.loadURL('https://ti.qq.com/photowall/index.html?uin=' + room.roomId)
-                    win.webContents.executeJavaScript(
-                        fs.readFileSync(path.join(getStaticPath(), 'photoWallInj.js'), 'utf-8'),
-                    )
-                },
-            }),
-        )
-    }
-    menu.append(
-        new MenuItem({
-            label: '网页应用',
-            submenu: webApps,
-        }),
-    )
-    menu.append(
-        new MenuItem({
-            label: '获取历史消息',
-            click: () => fetchLatestHistory(room.roomId),
-        }),
-    )
-    menu.append(
-        new MenuItem({
-            label: '设置消息密钥',
-            click: () => ui.setCryptSecret(room.roomId),
-        }),
+                                  await win.loadURL('https://qun.qq.com/homework/p/features#?gid=' + -room.roomId, {
+                                      userAgent: 'QQ/8.9.13.9280',
+                                  })
+                              },
+                          },
+                          {
+                              label: '群幸运字符',
+                              async click() {
+                                  const size = screen.getPrimaryDisplay().size
+                                  const win = newIcalinguaWindow({
+                                      height: size.height - 200,
+                                      width: 500,
+                                      autoHideMenuBar: true,
+                                  })
+                                  const cookies = await getCookies('qun.qq.com')
+                                  for (const i in cookies) {
+                                      await win.webContents.session.cookies.set({
+                                          url: 'https://qun.qq.com',
+                                          domain: '.qun.qq.com',
+                                          name: i,
+                                          value: cookies[i],
+                                      })
+                                  }
+                                  await win.loadURL('https://qun.qq.com/v2/luckyword/index?qunid=' + -room.roomId)
+                              },
+                          },
+                      ],
+                  }
+                : {
+                      label: '应用',
+                      submenu: [
+                          {
+                              label: '互动标识',
+                              async click() {
+                                  const size = screen.getPrimaryDisplay().size
+                                  const win = newIcalinguaWindow({
+                                      height: size.height - 200,
+                                      width: 500,
+                                      autoHideMenuBar: true,
+                                  })
+                                  const cookies = await getCookies('ti.qq.com')
+                                  for (const i in cookies) {
+                                      await win.webContents.session.cookies.set({
+                                          url: 'https://ti.qq.com',
+                                          name: i,
+                                          value: cookies[i],
+                                      })
+                                  }
+                                  await win.loadURL(
+                                      'https://ti.qq.com/hybrid-h5/interactive_logo/inter?target_uin=' + room.roomId,
+                                  )
+                              },
+                          },
+                          {
+                              label: '幸运字符',
+                              async click() {
+                                  const size = screen.getPrimaryDisplay().size
+                                  const win = newIcalinguaWindow({
+                                      height: size.height - 200,
+                                      width: 500,
+                                      autoHideMenuBar: true,
+                                  })
+                                  const cookies = await getCookies('ti.qq.com')
+                                  for (const i in cookies) {
+                                      await win.webContents.session.cookies.set({
+                                          url: 'https://ti.qq.com',
+                                          name: i,
+                                          value: cookies[i],
+                                      })
+                                  }
+                                  await win.loadURL('https://ti.qq.com/interactive_logo/word?target_uin=' + room.roomId)
+                              },
+                          },
+                          {
+                              label: '照片墙',
+                              async click() {
+                                  const size = screen.getPrimaryDisplay().size
+                                  const win = newIcalinguaWindow({
+                                      height: size.height - 200,
+                                      width: 500,
+                                      autoHideMenuBar: true,
+                                      webPreferences: {
+                                          preload: path.join(getStaticPath(), 'photoWallPreload.js'),
+                                          contextIsolation: false,
+                                      },
+                                  })
+                                  const cookies = await getCookies('ti.qq.com')
+                                  for (const i in cookies) {
+                                      await win.webContents.session.cookies.set({
+                                          url: 'https://ti.qq.com',
+                                          name: i,
+                                          value: cookies[i],
+                                      })
+                                  }
+                                  await win.loadURL('https://ti.qq.com/photowall/index.html?uin=' + room.roomId)
+                                  win.webContents.executeJavaScript(
+                                      fs.readFileSync(path.join(getStaticPath(), 'photoWallInj.js'), 'utf-8'),
+                                  )
+                              },
+                          },
+                      ],
+                  },
+            {
+                type: 'separator',
+            },
+            ...(room.roomId < 0
+                ? [
+                      {
+                          label: '我的群昵称',
+                          async click() {
+                              const memberInfo = await getGroupMemberInfo(-room.roomId, getUin())
+                              const win = newIcalinguaWindow({
+                                  height: 190,
+                                  width: 600,
+                                  autoHideMenuBar: true,
+                                  webPreferences: {
+                                      contextIsolation: false,
+                                      nodeIntegration: true,
+                                  },
+                              })
+                              await win.loadURL(
+                                  getWinUrl() +
+                                      '#/groupNickEdit/' +
+                                      -room.roomId +
+                                      '/' +
+                                      querystring.escape(room.roomName) +
+                                      '/' +
+                                      querystring.escape(memberInfo.card || memberInfo.nickname),
+                              )
+                          },
+                      },
+                      {
+                          label: '群成员',
+                          async click() {
+                              ui.openGroupMemberPanel(true, -room.roomId)
+                          },
+                      },
+                      {
+                          label: '群成员管理',
+                          async click() {
+                              const win = newIcalinguaWindow({
+                                  autoHideMenuBar: true,
+                                  webPreferences: {
+                                      contextIsolation: false,
+                                  },
+                              })
+                              win.maximize()
+                              const cookies = await getCookies('qun.qq.com')
+                              for (const i in cookies) {
+                                  await win.webContents.session.cookies.set({
+                                      url: 'https://qun.qq.com',
+                                      domain: '.qun.qq.com',
+                                      name: i,
+                                      value: cookies[i],
+                                  })
+                              }
+                              win.webContents.on('dom-ready', () =>
+                                  win.webContents.insertCSS(
+                                      '.header,.footer>p:not(:last-child),#changeGroup{display:none} ' +
+                                          '.body{padding-top:0 !important;margin:0 !important}',
+                                  ),
+                              )
+                              await win.loadURL('https://qun.qq.com/member.html#gid=' + -room.roomId)
+                          },
+                      },
+
+                      {
+                          type: 'separator',
+                      },
+                  ]
+                : []),
+            {
+                label: '高级',
+                submenu: [
+                    {
+                        label: '设置消息密钥',
+                        click: () => ui.setCryptSecret(room.roomId),
+                    },
+                    {
+                        label: '自动下载',
+                        submenu: [
+                            {
+                                type: 'checkbox',
+                                label: '聊天文件',
+                                checked: !!room.autoDownload,
+                                click: (menuItem) => setRoomAutoDownload(room.roomId, menuItem.checked),
+                            },
+                            {
+                                label: '设置下载路径',
+                                click: () => {
+                                    const selection = dialog.showOpenDialogSync(getMainWindow(), {
+                                        title: '设置下载路径',
+                                        properties: ['openDirectory'],
+                                        defaultPath: room.downloadPath,
+                                    })
+                                    console.log(selection)
+                                    if (selection && selection.length) {
+                                        setRoomAutoDownloadPath(room.roomId, selection[0])
+                                    }
+                                },
+                            },
+                        ],
+                    },
+                    room.roomId < 0
+                        ? {
+                              label: '导出群成员',
+                              click() {
+                                  exportGroupMembers(-room.roomId)
+                              },
+                          }
+                        : null,
+                    {
+                        label: '获取历史消息',
+                        click: () => fetchLatestHistory(room.roomId),
+                    },
+                ],
+            },
+        ].filter(Boolean) as any,
     )
     return menu
 }
@@ -1812,7 +1767,7 @@ ipcMain.on('popupAvatarMenu', async (e, message: Message, room: Room) => {
     if (e.sender === getMainWindow().webContents)
         menu.append(
             new MenuItem({
-                label: 'at',
+                label: '@TA',
                 click() {
                     atCache.push({
                         text: '@' + message.username,

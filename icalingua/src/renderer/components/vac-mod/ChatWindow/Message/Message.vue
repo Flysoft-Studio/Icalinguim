@@ -200,6 +200,27 @@
                         </div>
                     </div>
                 </div>
+                <div
+                    class="vac-message-sender-avatar"
+                    @click.right="$emit('avatar-ctx')"
+                    @dblclick="$emit('poke')"
+                    v-if="roomUsers.length > 2 && message.senderId === currentUserId"
+                >
+                    <img
+                        :src="tgLogo"
+                        v-if="message.mirai && message.mirai.eqq.type === 'tg'"
+                        style="
+                            position: absolute;
+                            right: -4px;
+                            bottom: 5px;
+                            object-fit: cover;
+                            height: 18px;
+                            width: 18px;
+                            line-height: 18px;
+                        "
+                    />
+                    <el-avatar size="medium" :src="avatar" />
+                </div>
             </slot>
         </div>
     </div>

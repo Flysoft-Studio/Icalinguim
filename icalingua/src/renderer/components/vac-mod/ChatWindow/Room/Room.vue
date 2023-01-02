@@ -676,6 +676,9 @@ export default {
                     // default:
                     //     console.log('qwq')
                 }
+            } else if (e.key === 's' && e.altKey) {
+                this.sendMessage()
+                e.preventDefault()
             } else if (e.key === 'ArrowUp') {
                 if (this.message) return
                 //编辑重发上一条消息
